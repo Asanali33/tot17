@@ -3,8 +3,19 @@ import '../models/task.dart';
 class TaskService {
   List<Task> tasks = [];
 
-  void addTask(String title) {
-    tasks.add(Task(title: title));
+  final Map<String, List<String>> categories = {
+    'Работа': ['Проекты', 'Встречи', 'Отчеты', 'Прочее'],
+    'Личное': ['Спорт', 'Чтение', 'Хобби', 'Прочее'],
+    'Покупки': ['Продукты', 'Одежда', 'Дом', 'Другое'],
+    'Общие': ['Стандартные'],
+  };
+
+  void addTask(String title, {String category = 'Общие', String? subcategory}) {
+    tasks.add(Task(
+      title: title,
+      category: category,
+      subcategory: subcategory,
+    ));
   }
 
   void toggleTask(int index) {
@@ -13,5 +24,11 @@ class TaskService {
 
   void deleteTask(int index) {
     tasks.removeAt(index);
+  }
+
+  void updateTask(int index, String title, String category, String? subcategory) {
+    tasks[index].title = title;
+    tasks[index].category = category;
+    tasks[index].subcategory = subcategory;
   }
 }

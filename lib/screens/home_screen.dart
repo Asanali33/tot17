@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/task_service.dart';
 import '../widgets/task_tile.dart';
+import 'subcategories_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final TaskService taskService;
@@ -14,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late TaskService taskService;
   TextEditingController controller = TextEditingController();
+  String selectedCategory = 'Общие';
 
   @override
   void initState() {
@@ -24,10 +26,30 @@ class _HomeScreenState extends State<HomeScreen> {
   void addTask() {
     if (controller.text.isEmpty) return;
 
-    setState(() {
-      taskService.addTask(controller.text);
-      controller.clear();
-    });
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Выбрать категорию'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: taskService.categories.keys.map((category) {
+              return ListTile(
+                title: Text(category),
+                onTap: () {
+                  setState(() {
+                    selectedCategory = category;
+                    taskService.addTask(controller.text, category: category);
+                    controller.clear();
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
   }
 
   double getProgress() {
@@ -114,6 +136,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     onDelete: () {
                       setState(() {
                         taskService.deleteTask(index);
+                      });
+                    },
+                    onEditCategory: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SubcategoriesScreen(
+                            taskService: taskService,
+                            taskIndex: index,
+                          ),
+                        ),
+                      ).then((result) {
+                        if (result == true) {
+                          setState(() {});
+                        }
                       });
                     },
                   ),
