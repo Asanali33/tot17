@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   runApp(const TaskFlowApp());
@@ -14,7 +14,7 @@ class TaskFlowApp extends StatelessWidget {
       title: 'TaskFlow',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: const HomeScreen(),
+      home: const MainScreen(),
     );
   }
 }

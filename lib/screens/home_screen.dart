@@ -3,15 +3,23 @@ import '../services/task_service.dart';
 import '../widgets/task_tile.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final TaskService taskService;
+
+  const HomeScreen({Key? key, required this.taskService}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  TaskService taskService = TaskService();
+  late TaskService taskService;
   TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    taskService = widget.taskService;
+  }
 
   void addTask() {
     if (controller.text.isEmpty) return;
