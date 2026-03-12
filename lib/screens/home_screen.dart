@@ -52,6 +52,46 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void editTaskTitle(int index) {
+    final task = taskService.tasks[index];
+    final controller = TextEditingController(text: task.title);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Редактировать задачу'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: 'Новое название задачи'),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.trim().isEmpty) return;
+                setState(() {
+                  taskService.updateTask(
+                    index,
+                    controller.text.trim(),
+                    task.category,
+                    task.subcategory,
+                  );
+                });
+                Navigator.pop(context);
+              },
+              child: Text('Сохранить'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   double getProgress() {
     if (taskService.tasks.isEmpty) return 0;
     int completed = taskService.tasks.where((t) => t.isDone).length;
@@ -61,10 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("TaskFlow"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text("TaskFlow"), centerTitle: true),
       body: Column(
         children: [
           Padding(
@@ -83,10 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: addTask,
-                  child: Icon(Icons.add),
-                )
+                ElevatedButton(onPressed: addTask, child: Icon(Icons.add)),
               ],
             ),
           ),
@@ -94,10 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Column(
               children: [
-                LinearProgressIndicator(
-                  value: getProgress(),
-                  minHeight: 8,
-                ),
+                LinearProgressIndicator(value: getProgress(), minHeight: 8),
                 SizedBox(height: 8),
                 Text(
                   '${(getProgress() * 100).toStringAsFixed(0)}% выполнено',
@@ -133,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         taskService.toggleTask(index);
                       });
                     },
+                    onEditTitle: () => editTaskTitle(index),
                     onDelete: () {
                       setState(() {
                         taskService.deleteTask(index);

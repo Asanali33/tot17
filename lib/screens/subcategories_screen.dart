@@ -23,7 +23,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   void initState() {
     super.initState();
     selectedCategory = widget.taskService.tasks[widget.taskIndex].category;
-    selectedSubcategory = widget.taskService.tasks[widget.taskIndex].subcategory;
+    selectedSubcategory =
+        widget.taskService.tasks[widget.taskIndex].subcategory;
   }
 
   @override
@@ -46,16 +47,15 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               children: [
                 Text(
                   'Категория:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: widget.taskService.categories.keys.map((category) {
+                    children: widget.taskService.categories.keys.map((
+                      category,
+                    ) {
                       return Padding(
                         padding: EdgeInsets.only(right: 8),
                         child: ChoiceChip(
@@ -89,37 +89,38 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               children: [
                 Text(
                   'Подкатегория:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: (widget.taskService.categories[selectedCategory] ?? [])
-                      .map((subcategory) {
-                    return FilterChip(
-                      label: Text(subcategory),
-                      selected: selectedSubcategory == subcategory,
-                      onSelected: (selected) {
-                        setState(() {
-                          selectedSubcategory = selected ? subcategory : null;
-                        });
-                      },
-                      backgroundColor: Colors.grey[200],
-                      selectedColor: Colors.indigo[100],
-                      labelStyle: TextStyle(
-                        color: selectedSubcategory == subcategory
-                            ? Colors.indigo[700]
-                            : Colors.black,
-                        fontWeight: selectedSubcategory == subcategory
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    );
-                  }).toList(),
+                  children:
+                      (widget.taskService.categories[selectedCategory] ?? [])
+                          .map((subcategory) {
+                            return FilterChip(
+                              label: Text(subcategory),
+                              selected: selectedSubcategory == subcategory,
+                              onSelected: (selected) {
+                                setState(() {
+                                  selectedSubcategory = selected
+                                      ? subcategory
+                                      : null;
+                                });
+                              },
+                              backgroundColor: Colors.grey[200],
+                              selectedColor: Colors.indigo[100],
+                              labelStyle: TextStyle(
+                                color: selectedSubcategory == subcategory
+                                    ? Colors.indigo[700]
+                                    : Colors.black,
+                                fontWeight: selectedSubcategory == subcategory
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            );
+                          })
+                          .toList(),
                 ),
               ],
             ),
