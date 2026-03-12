@@ -5,6 +5,7 @@ class TaskTile extends StatelessWidget {
   final Task task;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback? onEditTitle;
   final VoidCallback? onEditCategory;
 
   const TaskTile({
@@ -12,6 +13,7 @@ class TaskTile extends StatelessWidget {
     required this.task,
     required this.onTap,
     required this.onDelete,
+    this.onEditTitle,
     this.onEditCategory,
   });
 
@@ -36,6 +38,7 @@ class TaskTile extends StatelessWidget {
               ),
             ),
             onTap: onTap,
+            onLongPress: onEditTitle,
             trailing: IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
               onPressed: onDelete,
@@ -46,10 +49,7 @@ class TaskTile extends StatelessWidget {
             child: Row(
               children: [
                 Chip(
-                  label: Text(
-                    task.category,
-                    style: TextStyle(fontSize: 12),
-                  ),
+                  label: Text(task.category, style: TextStyle(fontSize: 12)),
                   backgroundColor: Colors.indigo[100],
                   labelPadding: EdgeInsets.symmetric(horizontal: 8),
                 ),
@@ -67,11 +67,7 @@ class TaskTile extends StatelessWidget {
                 Spacer(),
                 GestureDetector(
                   onTap: onEditCategory,
-                  child: Icon(
-                    Icons.edit,
-                    color: Colors.indigo,
-                    size: 18,
-                  ),
+                  child: Icon(Icons.edit, color: Colors.indigo, size: 18),
                 ),
               ],
             ),
