@@ -5,7 +5,14 @@ import 'settings_screen.dart';
 import '../services/task_service.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final VoidCallback onToggleTheme;
+  final bool isDarkMode;
+
+  const MainScreen({
+    super.key,
+    required this.onToggleTheme,
+    required this.isDarkMode,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -14,17 +21,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final TaskService taskService = TaskService();
-  late List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      HomeScreen(taskService: taskService),
-      StatsScreen(taskService: taskService),
-      SettingsScreen(),
-    ];
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,10 +28,23 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  List<Widget> _buildScreens() {
+    return [
+      HomeScreen(taskService: taskService),
+      StatsScreen(taskService: taskService),
+      SettingsScreen(
+        onToggleTheme: widget.onToggleTheme,
+        isDarkMode: widget.isDarkMode,
+        taskService: taskService,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screens = _buildScreens();
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(

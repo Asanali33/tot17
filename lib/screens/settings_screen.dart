@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import '../services/task_service.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final VoidCallback onToggleTheme;
+  final bool isDarkMode;
+  final TaskService taskService;
+
+  const SettingsScreen({
+    super.key,
+    required this.onToggleTheme,
+    required this.isDarkMode,
+    required this.taskService,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -9,7 +19,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled = true;
-  bool darkMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +61,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: Text("Тёмная тема"),
               subtitle: Text("Использовать тёмный режим"),
               trailing: Switch(
-                value: darkMode,
+                value: widget.isDarkMode,
                 onChanged: (value) {
-                  setState(() {
-                    darkMode = value;
-                  });
+                  widget.onToggleTheme();
                 },
               ),
             ),
@@ -104,6 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       TextButton(
                         onPressed: () {
+                          widget.taskService.clearAllTasks();
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Все задачи очищены")),

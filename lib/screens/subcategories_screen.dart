@@ -6,10 +6,10 @@ class SubcategoriesScreen extends StatefulWidget {
   final int taskIndex;
 
   const SubcategoriesScreen({
-    Key? key,
+    super.key,
     required this.taskService,
     required this.taskIndex,
-  }) : super(key: key);
+  });
 
   @override
   State<SubcategoriesScreen> createState() => _SubcategoriesScreenState();

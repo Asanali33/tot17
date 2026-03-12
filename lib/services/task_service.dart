@@ -31,4 +31,8 @@ class TaskService {
     tasks[index].category = category;
     tasks[index].subcategory = subcategory;
   }
+
+  void clearAllTasks() {
+    tasks.clear();
+  }
 }

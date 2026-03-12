@@ -6,7 +6,7 @@ import 'subcategories_screen.dart';
 class HomeScreen extends StatefulWidget {
   final TaskService taskService;
 
-  const HomeScreen({Key? key, required this.taskService}) : super(key: key);
+  const HomeScreen({super.key, required this.taskService});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
