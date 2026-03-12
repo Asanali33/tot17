@@ -46,6 +46,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        // Colors come from theme via BottomNavigationBarThemeData
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.checklist),
@@ -61,7 +62,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.indigo,
+        //selectedItemColor: Colors.indigo,
         onTap: _onItemTapped,
       ),
     );

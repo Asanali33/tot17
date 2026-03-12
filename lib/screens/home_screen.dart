@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 8),
                 Text(
                   '${(getProgress() * 100).toStringAsFixed(0)}% выполнено',
-                  style: TextStyle(fontSize: 14),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
                 ),
               ],
             ),
@@ -152,10 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                   },
                   background: Container(
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                     alignment: Alignment.centerRight,
                     padding: EdgeInsets.only(right: 20),
-                    child: Icon(Icons.delete, color: Colors.white),
+                    child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onError),
                   ),
                   child: TaskTile(
                     task: task,

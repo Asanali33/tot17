@@ -33,15 +33,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: EdgeInsets.all(16),
             child: Text(
               "Основные",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Card(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Theme.of(context).cardColor,
             child: ListTile(
               title: Text("Уведомления"),
               subtitle: Text("Получайте напоминания о задачах"),
@@ -57,6 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Card(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Theme.of(context).cardColor,
             child: ListTile(
               title: Text("Тёмная тема"),
               subtitle: Text("Использовать тёмный режим"),
@@ -72,11 +73,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: EdgeInsets.all(16),
             child: Text(
               "О приложении",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Card(
@@ -126,8 +126,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icon(Icons.delete),
               label: Text("Очистить все задачи"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
               ),
             ),
           ),

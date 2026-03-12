@@ -29,6 +29,7 @@ class _StatsScreenState extends State<StatsScreen> {
           children: [
             Card(
               elevation: 3,
+              color: Theme.of(context).cardColor,
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -36,10 +37,10 @@ class _StatsScreenState extends State<StatsScreen> {
                   children: [
                     Text(
                       "Общая статистика",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 16),
                     Row(
@@ -87,8 +88,9 @@ class _StatsScreenState extends State<StatsScreen> {
                       child: LinearProgressIndicator(
                         value: total > 0 ? completed / total : 0,
                         minHeight: 20,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation(Colors.green),
+                        backgroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                        valueColor: AlwaysStoppedAnimation(
+                            Theme.of(context).colorScheme.primary),
                       ),
                     ),
                     SizedBox(height: 12),
