@@ -19,6 +19,9 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -27,7 +30,9 @@ class TaskTile extends StatelessWidget {
           ListTile(
             leading: Icon(
               task.isDone ? Icons.check_circle : Icons.circle_outlined,
-              color: task.isDone ? Colors.green : Colors.grey,
+              color: task.isDone
+                  ? colorScheme.primary
+                  : colorScheme.onSurface.withAlpha((0.6 * 255).round()),
             ),
             title: Text(
               task.title,
@@ -40,7 +45,7 @@ class TaskTile extends StatelessWidget {
             onTap: onTap,
             onLongPress: onEditTitle,
             trailing: IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
+              icon: Icon(Icons.delete, color: colorScheme.error),
               onPressed: onDelete,
             ),
           ),
@@ -49,8 +54,13 @@ class TaskTile extends StatelessWidget {
             child: Row(
               children: [
                 Chip(
-                  label: Text(task.category, style: TextStyle(fontSize: 12)),
-                  backgroundColor: Colors.indigo[100],
+                  label: Text(
+                    task.category,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                  backgroundColor: colorScheme.secondaryContainer,
                   labelPadding: EdgeInsets.symmetric(horizontal: 8),
                 ),
                 if (task.subcategory != null) ...[
@@ -58,16 +68,18 @@ class TaskTile extends StatelessWidget {
                   Chip(
                     label: Text(
                       task.subcategory!,
-                      style: TextStyle(fontSize: 12),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                    backgroundColor: Colors.indigo[50],
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                     labelPadding: EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ],
                 Spacer(),
                 GestureDetector(
                   onTap: onEditCategory,
-                  child: Icon(Icons.edit, color: Colors.indigo, size: 18),
+                  child: Icon(Icons.edit, color: colorScheme.primary, size: 18),
                 ),
               ],
             ),

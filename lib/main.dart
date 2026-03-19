@@ -44,9 +44,12 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
   @override
   Widget build(BuildContext context) {
     // define explicit theme objects so changes are more visible
+    final lightColorScheme = ColorScheme.fromSwatch(
+      primarySwatch: Colors.indigo,
+    ).copyWith(brightness: Brightness.light);
+
     final lightTheme = ThemeData(
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo)
-          .copyWith(brightness: Brightness.light),
+      colorScheme: lightColorScheme,
       scaffoldBackgroundColor: Colors.grey[100],
       cardColor: Colors.white,
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -54,17 +57,48 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.white,
       ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return lightColorScheme.primary;
+          }
+          return lightColorScheme.onSurface.withAlpha((0.7 * 255).round());
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return lightColorScheme.primary.withAlpha((0.5 * 255).round());
+          }
+          return lightColorScheme.onSurface.withAlpha((0.3 * 255).round());
+        }),
+      ),
     );
 
+    final darkColorScheme = ColorScheme.fromSwatch(
+      primarySwatch: Colors.indigo,
+    ).copyWith(brightness: Brightness.dark);
+
     final darkTheme = ThemeData(
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo)
-          .copyWith(brightness: Brightness.dark),
+      colorScheme: darkColorScheme,
       scaffoldBackgroundColor: Colors.grey[900],
       cardColor: Colors.grey[800],
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         selectedItemColor: Colors.indigo[200],
         unselectedItemColor: Colors.grey[400],
         backgroundColor: Colors.grey[850],
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return darkColorScheme.primary;
+          }
+          return darkColorScheme.onSurface.withAlpha((0.7 * 255).round());
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return darkColorScheme.primary.withAlpha((0.5 * 255).round());
+          }
+          return darkColorScheme.onSurface.withAlpha((0.3 * 255).round());
+        }),
       ),
     );
 
@@ -74,11 +108,7 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: MainScreen(
-        onToggleTheme: _toggleTheme,
-        isDarkMode: _isDarkMode,
-      ),
+      home: MainScreen(onToggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
     );
   }
 }
-

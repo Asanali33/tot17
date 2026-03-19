@@ -29,11 +29,16 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Выбрать категорию',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -47,7 +52,9 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               children: [
                 Text(
                   'Категория:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 8),
                 SingleChildScrollView(
@@ -56,22 +63,24 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                     children: widget.taskService.categories.keys.map((
                       category,
                     ) {
+                      final isSelected = selectedCategory == category;
                       return Padding(
                         padding: EdgeInsets.only(right: 8),
                         child: ChoiceChip(
                           label: Text(category),
-                          selected: selectedCategory == category,
+                          selected: isSelected,
                           onSelected: (selected) {
                             setState(() {
                               selectedCategory = category;
                               selectedSubcategory = null;
                             });
                           },
-                          selectedColor: Colors.indigo,
-                          labelStyle: TextStyle(
-                            color: selectedCategory == category
-                                ? Colors.white
-                                : Colors.black,
+                          selectedColor: colorScheme.primaryContainer,
+                          backgroundColor: colorScheme.surfaceContainerHighest,
+                          labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                            color: isSelected
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
                           ),
                         ),
                       );
@@ -89,7 +98,9 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               children: [
                 Text(
                   'Подкатегория:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 12),
                 Wrap(
@@ -98,9 +109,11 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                   children:
                       (widget.taskService.categories[selectedCategory] ?? [])
                           .map((subcategory) {
+                            final isSelected =
+                                selectedSubcategory == subcategory;
                             return FilterChip(
                               label: Text(subcategory),
-                              selected: selectedSubcategory == subcategory,
+                              selected: isSelected,
                               onSelected: (selected) {
                                 setState(() {
                                   selectedSubcategory = selected
@@ -108,13 +121,14 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                                       : null;
                                 });
                               },
-                              backgroundColor: Colors.grey[200],
-                              selectedColor: Colors.indigo[100],
-                              labelStyle: TextStyle(
-                                color: selectedSubcategory == subcategory
-                                    ? Colors.indigo[700]
-                                    : Colors.black,
-                                fontWeight: selectedSubcategory == subcategory
+                              backgroundColor:
+                                  colorScheme.surfaceContainerHighest,
+                              selectedColor: colorScheme.primaryContainer,
+                              labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: isSelected
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.onSurface,
+                                fontWeight: isSelected
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                               ),
@@ -142,14 +156,13 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                 ),
                 child: Text(
                   'Сохранить',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
               ),

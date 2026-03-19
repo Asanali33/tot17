@@ -17,11 +17,11 @@ class _StatsScreenState extends State<StatsScreen> {
     int completed = widget.taskService.tasks.where((t) => t.isDone).length;
     int remaining = total - completed;
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Статистика"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text("Статистика"), centerTitle: true),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -29,7 +29,7 @@ class _StatsScreenState extends State<StatsScreen> {
           children: [
             Card(
               elevation: 3,
-              color: Theme.of(context).cardColor,
+              color: theme.cardColor,
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -37,10 +37,9 @@ class _StatsScreenState extends State<StatsScreen> {
                   children: [
                     Text(
                       "Общая статистика",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 16),
                     Row(
@@ -49,17 +48,17 @@ class _StatsScreenState extends State<StatsScreen> {
                         _StatItem(
                           title: "Всего",
                           value: total.toString(),
-                          color: Colors.blue,
+                          color: colorScheme.primary,
                         ),
                         _StatItem(
                           title: "Выполнено",
                           value: completed.toString(),
-                          color: Colors.green,
+                          color: colorScheme.secondary,
                         ),
                         _StatItem(
                           title: "Осталось",
                           value: remaining.toString(),
-                          color: Colors.orange,
+                          color: colorScheme.tertiary,
                         ),
                       ],
                     ),
@@ -77,8 +76,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   children: [
                     Text(
                       "Прогресс выполнения",
-                      style: TextStyle(
-                        fontSize: 18,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -88,15 +86,18 @@ class _StatsScreenState extends State<StatsScreen> {
                       child: LinearProgressIndicator(
                         value: total > 0 ? completed / total : 0,
                         minHeight: 20,
-                        backgroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-                        valueColor: AlwaysStoppedAnimation(
-                            Theme.of(context).colorScheme.primary),
+                        backgroundColor: colorScheme.onSurface.withAlpha(
+                          (0.2 * 255).round(),
+                        ),
+                        valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                       ),
                     ),
                     SizedBox(height: 12),
                     Text(
                       "${total > 0 ? ((completed / total) * 100).toStringAsFixed(1) : 0}% выполнено",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -107,7 +108,9 @@ class _StatsScreenState extends State<StatsScreen> {
               Center(
                 child: Text(
                   "📝 Добавьте задачи для просмотра статистики",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
           ],
@@ -135,7 +138,7 @@ class _StatItem extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withAlpha((0.2 * 255).round()),
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -148,10 +151,7 @@ class _StatItem extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8),
-        Text(
-          title,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }

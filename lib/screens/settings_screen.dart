@@ -23,20 +23,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Настройки"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text("Настройки"), centerTitle: true),
       body: ListView(
         children: [
           Padding(
             padding: EdgeInsets.all(16),
             child: Text(
               "Основные",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Card(
@@ -47,6 +43,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: Text("Получайте напоминания о задачах"),
               trailing: Switch(
                 value: notificationsEnabled,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                activeTrackColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withAlpha((0.5 * 255).round()),
+                inactiveThumbColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                inactiveTrackColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.3 * 255).round()),
                 onChanged: (value) {
                   setState(() {
                     notificationsEnabled = value;
@@ -63,6 +69,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: Text("Использовать тёмный режим"),
               trailing: Switch(
                 value: widget.isDarkMode,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                activeTrackColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withAlpha((0.5 * 255).round()),
+                inactiveThumbColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                inactiveTrackColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.3 * 255).round()),
                 onChanged: (value) {
                   widget.onToggleTheme();
                 },
@@ -73,10 +89,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: EdgeInsets.all(16),
             child: Text(
               "О приложении",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Card(
@@ -103,7 +118,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text("Подтверждение"),
-                    content: Text("Вы уверены, что хотите очистить все задачи?"),
+                    content: Text(
+                      "Вы уверены, что хотите очистить все задачи?",
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
