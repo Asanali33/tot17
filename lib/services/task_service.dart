@@ -4,17 +4,18 @@ class TaskService {
   List<Task> tasks = [];
 
   final Map<String, List<String>> categories = {
-    'Работа': ['Проекты', 'Встречи', 'Отчеты', 'Прочее'],
-    'Личное': ['Спорт', 'Чтение', 'Хобби', 'Прочее'],
-    'Покупки': ['Продукты', 'Одежда', 'Дом', 'Другое'],
-    'Общие': ['Стандартные'],
+    'work': ['projects', 'meetings', 'reports', 'other'],
+    'personal': ['sport', 'reading', 'hobby', 'other'],
+    'shopping': ['food', 'clothes', 'home', 'other'],
+    'general': ['standard'],
   };
 
-  void addTask(String title, {String category = 'Общие', String? subcategory}) {
+  void addTask(String title, {String category = 'Общие', String? subcategory, DateTime? deadline}) {
     tasks.add(Task(
       title: title,
       category: category,
       subcategory: subcategory,
+      deadline: deadline,
     ));
   }
 
@@ -26,10 +27,11 @@ class TaskService {
     tasks.removeAt(index);
   }
 
-  void updateTask(int index, String title, String category, String? subcategory) {
+  void updateTask(int index, String title, String category, String? subcategory, DateTime? deadline) {
     tasks[index].title = title;
     tasks[index].category = category;
     tasks[index].subcategory = subcategory;
+    tasks[index].deadline = deadline;
   }
 
   void clearAllTasks() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
+import '../l10n/app_localizations.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
@@ -21,6 +22,51 @@ class TaskTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final localizations = AppLocalizations.of(context)!;
+
+    String getLocalizedCategory(String key) {
+      switch (key) {
+        case 'work':
+          return localizations.work;
+        case 'personal':
+          return localizations.personal;
+        case 'shopping':
+          return localizations.shopping;
+        case 'general':
+          return localizations.general;
+        default:
+          return key;
+      }
+    }
+
+    String getLocalizedSubcategory(String key) {
+      switch (key) {
+        case 'projects':
+          return localizations.projects;
+        case 'meetings':
+          return localizations.meetings;
+        case 'reports':
+          return localizations.reports;
+        case 'sport':
+          return localizations.sport;
+        case 'reading':
+          return localizations.reading;
+        case 'hobby':
+          return localizations.hobby;
+        case 'food':
+          return localizations.food;
+        case 'clothes':
+          return localizations.clothes;
+        case 'home':
+          return localizations.home;
+        case 'standard':
+          return localizations.standard;
+        case 'other':
+          return localizations.other;
+        default:
+          return key;
+      }
+    }
 
     return Card(
       elevation: 3,
@@ -51,36 +97,55 @@ class TaskTile extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+            child: Column(
               children: [
-                Chip(
-                  label: Text(
-                    task.category,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                  backgroundColor: colorScheme.secondaryContainer,
-                  labelPadding: EdgeInsets.symmetric(horizontal: 8),
-                ),
-                if (task.subcategory != null) ...[
-                  SizedBox(width: 8),
-                  Chip(
-                    label: Text(
-                      task.subcategory!,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                Row(
+                  children: [
+                    Chip(
+                      label: Text(
+                        getLocalizedCategory(task.category),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSecondaryContainer,
+                        ),
                       ),
+                      backgroundColor: colorScheme.secondaryContainer,
+                      labelPadding: EdgeInsets.symmetric(horizontal: 8),
                     ),
-                    backgroundColor: colorScheme.surfaceContainerHighest,
-                    labelPadding: EdgeInsets.symmetric(horizontal: 8),
+                    if (task.subcategory != null) ...[
+                      SizedBox(width: 8),
+                      Chip(
+                        label: Text(
+                          getLocalizedSubcategory(task.subcategory!),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        labelPadding: EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ],
+                    Spacer(),
+                    GestureDetector(
+                      onTap: onEditCategory,
+                      child: Icon(Icons.edit, color: colorScheme.primary, size: 18),
+                    ),
+                  ],
+                ),
+                if (task.deadline != null) ...[
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.schedule, size: 16, color: colorScheme.onSurfaceVariant),
+                      SizedBox(width: 4),
+                      Text(
+                        '${localizations.deadline}: ${task.deadline!.toLocal().toString().split(' ')[0]}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-                Spacer(),
-                GestureDetector(
-                  onTap: onEditCategory,
-                  child: Icon(Icons.edit, color: colorScheme.primary, size: 18),
-                ),
               ],
             ),
           ),

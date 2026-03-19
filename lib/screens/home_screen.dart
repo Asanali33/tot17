@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/task_service.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   final TaskService taskService;
@@ -15,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late TaskService taskService;
   TextEditingController controller = TextEditingController();
-  String selectedCategory = 'Общие';
+  String selectedCategory = 'general';
 
   @override
   void initState() {
@@ -23,26 +24,82 @@ class _HomeScreenState extends State<HomeScreen> {
     taskService = widget.taskService;
   }
 
+  String getLocalizedCategory(String key) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'work':
+        return localizations.work;
+      case 'personal':
+        return localizations.personal;
+      case 'shopping':
+        return localizations.shopping;
+      case 'general':
+        return localizations.general;
+      default:
+        return key;
+    }
+  }
+
+  String getLocalizedSubcategory(String key) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'projects':
+        return localizations.projects;
+      case 'meetings':
+        return localizations.meetings;
+      case 'reports':
+        return localizations.reports;
+      case 'sport':
+        return localizations.sport;
+      case 'reading':
+        return localizations.reading;
+      case 'hobby':
+        return localizations.hobby;
+      case 'food':
+        return localizations.food;
+      case 'clothes':
+        return localizations.clothes;
+      case 'home':
+        return localizations.home;
+      case 'standard':
+        return localizations.standard;
+      case 'other':
+        return localizations.other;
+      default:
+        return key;
+    }
+  }
+
   void addTask() {
     if (controller.text.isEmpty) return;
+
+    final localizations = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Выбрать категорию'),
+          title: Text(localizations.selectCategory),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: taskService.categories.keys.map((category) {
+            children: taskService.categories.keys.map((categoryKey) {
               return ListTile(
-                title: Text(category),
-                onTap: () {
+                title: Text(getLocalizedCategory(categoryKey)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // Выбрать дедлайн
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now().add(Duration(days: 1)),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(Duration(days: 365)),
+                  );
+                  DateTime deadline = picked ?? DateTime.now().add(Duration(days: 1));
                   setState(() {
-                    selectedCategory = category;
-                    taskService.addTask(controller.text, category: category);
+                    selectedCategory = categoryKey;
+                    taskService.addTask(controller.text, category: categoryKey, deadline: deadline);
                     controller.clear();
                   });
-                  Navigator.pop(context);
                 },
               );
             }).toList(),
@@ -55,57 +112,85 @@ class _HomeScreenState extends State<HomeScreen> {
   void editTaskTitle(int index) {
     final task = taskService.tasks[index];
     final controller = TextEditingController(text: task.title);
+    DateTime? selectedDeadline = task.deadline;
+
+    final localizations = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) {
-        final theme = Theme.of(context);
-        final colorScheme = theme.colorScheme;
-
-        return AlertDialog(
-          title: Text('Редактировать задачу'),
-          content: TextField(
-            controller: controller,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurface,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Новое название задачи',
-              hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-              filled: true,
-              fillColor: colorScheme.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.onSurface.withAlpha(0x40),
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text(localizations.editTask),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: localizations.newTaskTitle,
+                    hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSurface.withAlpha(0x40),
+                      ),
+                    ),
+                  ),
+                  autofocus: true,
                 ),
+                SizedBox(height: 16),
+                ListTile(
+                  title: Text(localizations.deadline),
+                  subtitle: selectedDeadline != null
+                      ? Text(selectedDeadline!.toLocal().toString().split(' ')[0])
+                      : Text('Не установлено'),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDeadline ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        selectedDeadline = picked;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(localizations.cancel),
               ),
-            ),
-            autofocus: true,
+              TextButton(
+                onPressed: () {
+                  if (controller.text.trim().isEmpty) return;
+                  setState(() {
+                    taskService.updateTask(
+                      index,
+                      controller.text.trim(),
+                      task.category,
+                      task.subcategory,
+                      selectedDeadline,
+                    );
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text(localizations.save),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Отмена'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (controller.text.trim().isEmpty) return;
-                setState(() {
-                  taskService.updateTask(
-                    index,
-                    controller.text.trim(),
-                    task.category,
-                    task.subcategory,
-                  );
-                });
-                Navigator.pop(context);
-              },
-              child: Text('Сохранить'),
-            ),
-          ],
         );
       },
     );
@@ -121,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final localizations = AppLocalizations.of(context)!;
 
     OutlineInputBorder border(Color color) => OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -142,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
-                      hintText: "Введите задачу...",
+                      hintText: localizations.enterTask,
                       hintStyle: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -157,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(width: 10),
-                ElevatedButton(onPressed: addTask, child: Icon(Icons.add)),
+                ElevatedButton(onPressed: addTask, child: Text(localizations.add)),
               ],
             ),
           ),
@@ -168,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 LinearProgressIndicator(value: getProgress(), minHeight: 8),
                 SizedBox(height: 8),
                 Text(
-                  '${(getProgress() * 100).toStringAsFixed(0)}% выполнено',
+                  '${(getProgress() * 100).toStringAsFixed(0)}% ${localizations.completed}',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(fontSize: 14),

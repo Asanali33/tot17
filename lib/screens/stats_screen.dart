@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/task_service.dart';
+import '../l10n/app_localizations.dart';
 
 class StatsScreen extends StatefulWidget {
   final TaskService taskService;
@@ -19,9 +20,10 @@ class _StatsScreenState extends State<StatsScreen> {
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Статистика"), centerTitle: true),
+      appBar: AppBar(title: Text(localizations.statistics), centerTitle: true),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -36,7 +38,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Общая статистика",
+                      localizations.overallStatistics,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -46,17 +48,17 @@ class _StatsScreenState extends State<StatsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _StatItem(
-                          title: "Всего",
+                          title: localizations.total,
                           value: total.toString(),
                           color: colorScheme.primary,
                         ),
                         _StatItem(
-                          title: "Выполнено",
+                          title: localizations.completed,
                           value: completed.toString(),
                           color: colorScheme.secondary,
                         ),
                         _StatItem(
-                          title: "Осталось",
+                          title: localizations.remaining,
                           value: remaining.toString(),
                           color: colorScheme.tertiary,
                         ),
@@ -75,7 +77,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Прогресс выполнения",
+                      localizations.progress,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -94,7 +96,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     ),
                     SizedBox(height: 12),
                     Text(
-                      "${total > 0 ? ((completed / total) * 100).toStringAsFixed(1) : 0}% выполнено",
+                      "${total > 0 ? ((completed / total) * 100).toStringAsFixed(1) : 0}${localizations.percentCompleted}",
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -107,7 +109,7 @@ class _StatsScreenState extends State<StatsScreen> {
             if (total == 0)
               Center(
                 child: Text(
-                  "📝 Добавьте задачи для просмотра статистики",
+                  localizations.addTasksForStats,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),

@@ -1,10 +1,21 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/main_screen.dart';
+import 'providers/locale_provider.dart';
+import 'l10n/app_localizations.dart';
 
 void main() {
-  runApp(const TaskFlowApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
+      child: const TaskFlowApp(),
+    ),
+  );
 }
 
 class TaskFlowApp extends StatefulWidget {
@@ -154,6 +165,17 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          locale: context.watch<LocaleProvider>().locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+            Locale('ru'),
+          ],
           home: MainScreen(
             onToggleTheme: _toggleTheme,
             isDarkMode: _isDarkMode,

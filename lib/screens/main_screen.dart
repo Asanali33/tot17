@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import '../services/task_service.dart';
+import '../providers/locale_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
@@ -43,22 +46,23 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = _buildScreens();
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         // Colors come from theme via BottomNavigationBarThemeData
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.checklist),
-            label: 'Задачи',
+            label: localizations.tasks,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Статистика',
+            label: localizations.statistics,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Настройки',
+            label: localizations.settings,
           ),
         ],
         currentIndex: _selectedIndex,
