@@ -38,6 +38,9 @@ dependencies:
   # persistent storage for user preferences
   shared_preferences: ^2.1.0
 
+  # dynamic Material You color support (Android 12+)
+  dynamic_color: ^1.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

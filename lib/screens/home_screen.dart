@@ -59,11 +59,30 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
         return AlertDialog(
           title: Text('Редактировать задачу'),
           content: TextField(
             controller: controller,
-            decoration: InputDecoration(hintText: 'Новое название задачи'),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurface,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Новое название задачи',
+              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.onSurface.withAlpha(0x40),
+                ),
+              ),
+            ),
             autofocus: true,
           ),
           actions: [
@@ -100,6 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: color, width: 1),
+    );
+
     return Scaffold(
       appBar: AppBar(title: Text("TaskFlow"), centerTitle: true),
       body: Column(
@@ -111,11 +138,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: TextField(
                     controller: controller,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
                     decoration: InputDecoration(
                       hintText: "Введите задачу...",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
+                      filled: true,
+                      fillColor: colorScheme.surface,
+                      border: border(colorScheme.onSurface.withAlpha(0x40)),
+                      enabledBorder: border(
+                        colorScheme.onSurface.withAlpha(0x40),
+                      ),
+                      focusedBorder: border(colorScheme.primary),
                     ),
                   ),
                 ),
@@ -132,7 +169,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 8),
                 Text(
                   '${(getProgress() * 100).toStringAsFixed(0)}% выполнено',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 14),
                 ),
               ],
             ),
@@ -155,7 +194,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(context).colorScheme.error,
                     alignment: Alignment.centerRight,
                     padding: EdgeInsets.only(right: 20),
-                    child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onError),
+                    child: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).colorScheme.onError,
+                    ),
                   ),
                   child: TaskTile(
                     task: task,

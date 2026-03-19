@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/main_screen.dart';
@@ -43,72 +44,122 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
 
   @override
   Widget build(BuildContext context) {
-    // define explicit theme objects so changes are more visible
-    final lightColorScheme = ColorScheme.fromSwatch(
-      primarySwatch: Colors.indigo,
-    ).copyWith(brightness: Brightness.light);
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) {
+        final lightColorScheme =
+            lightDynamic ??
+            ColorScheme.fromSeed(
+              seedColor: Colors.indigo,
+              brightness: Brightness.light,
+            );
 
-    final lightTheme = ThemeData(
-      colorScheme: lightColorScheme,
-      scaffoldBackgroundColor: Colors.grey[100],
-      cardColor: Colors.white,
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-      ),
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return lightColorScheme.primary;
-          }
-          return lightColorScheme.onSurface.withAlpha((0.7 * 255).round());
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return lightColorScheme.primary.withAlpha((0.5 * 255).round());
-          }
-          return lightColorScheme.onSurface.withAlpha((0.3 * 255).round());
-        }),
-      ),
-    );
+        final darkColorScheme =
+            darkDynamic ??
+            ColorScheme.fromSeed(
+              seedColor: Colors.indigo,
+              brightness: Brightness.dark,
+            );
 
-    final darkColorScheme = ColorScheme.fromSwatch(
-      primarySwatch: Colors.indigo,
-    ).copyWith(brightness: Brightness.dark);
+        final lightTheme =
+            ThemeData.from(
+              colorScheme: lightColorScheme,
+              useMaterial3: true,
+            ).copyWith(
+              scaffoldBackgroundColor: lightColorScheme.surface,
+              cardColor: lightColorScheme.surface,
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                selectedItemColor: lightColorScheme.primary,
+                unselectedItemColor: lightColorScheme.onSurface.withAlpha(0xA0),
+                backgroundColor: lightColorScheme.surface,
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: lightColorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: lightColorScheme.onSurface.withAlpha(0x40),
+                  ),
+                ),
+              ),
+              switchTheme: SwitchThemeData(
+                thumbColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return lightColorScheme.primary;
+                  }
+                  return lightColorScheme.onSurface.withAlpha(
+                    (0.7 * 255).round(),
+                  );
+                }),
+                trackColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return lightColorScheme.primary.withAlpha(
+                      (0.5 * 255).round(),
+                    );
+                  }
+                  return lightColorScheme.onSurface.withAlpha(
+                    (0.3 * 255).round(),
+                  );
+                }),
+              ),
+            );
 
-    final darkTheme = ThemeData(
-      colorScheme: darkColorScheme,
-      scaffoldBackgroundColor: Colors.grey[900],
-      cardColor: Colors.grey[800],
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: Colors.indigo[200],
-        unselectedItemColor: Colors.grey[400],
-        backgroundColor: Colors.grey[850],
-      ),
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return darkColorScheme.primary;
-          }
-          return darkColorScheme.onSurface.withAlpha((0.7 * 255).round());
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return darkColorScheme.primary.withAlpha((0.5 * 255).round());
-          }
-          return darkColorScheme.onSurface.withAlpha((0.3 * 255).round());
-        }),
-      ),
-    );
+        final darkTheme =
+            ThemeData.from(
+              colorScheme: darkColorScheme,
+              useMaterial3: true,
+            ).copyWith(
+              scaffoldBackgroundColor: darkColorScheme.surface,
+              cardColor: darkColorScheme.surface,
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                selectedItemColor: darkColorScheme.primary,
+                unselectedItemColor: darkColorScheme.onSurface.withAlpha(0xA0),
+                backgroundColor: darkColorScheme.surface,
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: darkColorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: darkColorScheme.onSurface.withAlpha(0x40),
+                  ),
+                ),
+              ),
+              switchTheme: SwitchThemeData(
+                thumbColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return darkColorScheme.primary;
+                  }
+                  return darkColorScheme.onSurface.withAlpha(
+                    (0.7 * 255).round(),
+                  );
+                }),
+                trackColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return darkColorScheme.primary.withAlpha(
+                      (0.5 * 255).round(),
+                    );
+                  }
+                  return darkColorScheme.onSurface.withAlpha(
+                    (0.3 * 255).round(),
+                  );
+                }),
+              ),
+            );
 
-    return MaterialApp(
-      title: 'TaskFlow',
-      debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: MainScreen(onToggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+        return MaterialApp(
+          title: 'TaskFlow',
+          debugShowCheckedModeBanner: false,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          home: MainScreen(
+            onToggleTheme: _toggleTheme,
+            isDarkMode: _isDarkMode,
+          ),
+        );
+      },
     );
   }
 }

@@ -151,7 +151,13 @@ class _StatItem extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8),
-        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }
