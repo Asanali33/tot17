@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/task_service.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
@@ -70,6 +71,45 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void addCommentToTask(int index) {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Добавить комментарий'),
+        content: TextField(
+          controller: controller,
+          minLines: 1,
+          maxLines: 5,
+          autofocus: true,
+          keyboardType: TextInputType.multiline,
+          textCapitalization: TextCapitalization.sentences,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[\s\S]')),
+          ],
+          decoration: InputDecoration(hintText: 'Введите текст комментария'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.trim().isEmpty) return;
+              setState(() {
+                taskService.addComment(index, controller.text.trim());
+              });
+              Navigator.pop(context);
+            },
+            child: Text('Сохранить'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void addTask() {
     if (controller.text.isEmpty) return;
 
@@ -87,17 +127,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: Text(getLocalizedCategory(categoryKey)),
                 onTap: () async {
                   Navigator.pop(context);
-                  // Выбрать дедлайн
-                  final picked = await showDatePicker(
+
+                  DateTime? deadline;
+                  final pickedDate = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now().add(Duration(days: 1)),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                   );
-                  DateTime deadline = picked ?? DateTime.now().add(Duration(days: 1));
+
+                  if (pickedDate != null) {
+                    final pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay(hour: 23, minute: 59),
+                      helpText: 'Выберите время дедлайна',
+                    );
+
+                    if (pickedTime != null) {
+                      deadline = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                    }
+                  }
+
                   setState(() {
                     selectedCategory = categoryKey;
-                    taskService.addTask(controller.text, category: categoryKey, deadline: deadline);
+                    taskService.addTask(
+                      controller.text,
+                      category: categoryKey,
+                      deadline: deadline,
+                    );
                     controller.clear();
                   });
                 },
@@ -140,7 +203,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.onSurface.withAlpha(0x40),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withAlpha(0x40),
                       ),
                     ),
                   ),
@@ -150,7 +215,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ListTile(
                   title: Text(localizations.deadline),
                   subtitle: selectedDeadline != null
-                      ? Text(selectedDeadline!.toLocal().toString().split(' ')[0])
+                      ? Text(
+                          selectedDeadline!.toLocal().toString().split(' ')[0],
+                        )
                       : Text('Не установлено'),
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -227,6 +294,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurface,
                     ),
+                    keyboardType: TextInputType.text,
+                    textCapitalization: TextCapitalization.sentences,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[\s\S]')),
+                    ],
                     decoration: InputDecoration(
                       hintText: localizations.enterTask,
                       hintStyle: theme.textTheme.bodyMedium?.copyWith(
@@ -243,7 +315,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(width: 10),
-                ElevatedButton(onPressed: addTask, child: Text(localizations.add)),
+                ElevatedButton(
+                  onPressed: addTask,
+                  child: Text(localizations.add),
+                ),
               ],
             ),
           ),
@@ -259,6 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                   ).textTheme.bodyMedium?.copyWith(fontSize: 14),
                 ),
+                SizedBox(height: 12),
               ],
             ),
           ),
@@ -298,6 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         taskService.deleteTask(index);
                       });
                     },
+                    onAddComment: () => addCommentToTask(index),
                     onEditCategory: () {
                       Navigator.push(
                         context,

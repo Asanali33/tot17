@@ -8,6 +8,7 @@ class TaskTile extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback? onEditTitle;
   final VoidCallback? onEditCategory;
+  final VoidCallback? onAddComment;
 
   const TaskTile({
     super.key,
@@ -16,6 +17,7 @@ class TaskTile extends StatelessWidget {
     required this.onDelete,
     this.onEditTitle,
     this.onEditCategory,
+    this.onAddComment,
   });
 
   @override
@@ -126,8 +128,33 @@ class TaskTile extends StatelessWidget {
                     ],
                     Spacer(),
                     GestureDetector(
+                      onTap: onAddComment,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.comment,
+                            color: colorScheme.primary,
+                            size: 18,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            task.comments.length.toString(),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    GestureDetector(
                       onTap: onEditCategory,
-                      child: Icon(Icons.edit, color: colorScheme.primary, size: 18),
+                      child: Icon(
+                        Icons.edit,
+                        color: colorScheme.primary,
+                        size: 18,
+                      ),
                     ),
                   ],
                 ),
@@ -135,15 +162,57 @@ class TaskTile extends StatelessWidget {
                   SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.schedule, size: 16, color: colorScheme.onSurfaceVariant),
+                      Icon(
+                        Icons.schedule,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                       SizedBox(width: 4),
                       Text(
-                        '${localizations.deadline}: ${task.deadline!.toLocal().toString().split(' ')[0]}',
+                        '${localizations.deadline}: ${task.deadline!.toLocal().toString().split(' ')[0]} ${task.deadline!.toLocal().toString().split(' ')[1].substring(0, 5)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
+                  ),
+                ],
+                if (task.comments.isNotEmpty) ...[
+                  Divider(color: colorScheme.onSurfaceVariant.withAlpha(120)),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Комментарии:',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  ...task.comments.map(
+                    (comment) => Padding(
+                      padding: EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.circle,
+                            size: 6,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              comment,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ],

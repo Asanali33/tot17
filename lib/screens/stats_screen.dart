@@ -106,6 +106,50 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
             ),
             SizedBox(height: 20),
+            Card(
+              elevation: 3,
+              color: theme.cardColor,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Геймификация',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Уровень: ${widget.taskService.level}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    Text(
+                      'Опыт: ${widget.taskService.experience}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: widget.taskService.achievements
+                          .map(
+                            (achievement) => Chip(
+                              label: Text(achievement),
+                              backgroundColor: colorScheme.primaryContainer,
+                              labelStyle: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
             if (total == 0)
               Center(
                 child: Text(

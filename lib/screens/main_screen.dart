@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import '../services/task_service.dart';
-import '../providers/locale_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
