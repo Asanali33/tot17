@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/task_service.dart';
+import '../models/task.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
 import '../l10n/app_localizations.dart';
@@ -17,12 +18,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late TaskService taskService;
   TextEditingController controller = TextEditingController();
+  TextEditingController searchController = TextEditingController();
   String selectedCategory = 'general';
+  bool showOnlyIncomplete = false;
+  String sortByOption = 'по приоритету';
 
   @override
   void initState() {
     super.initState();
     taskService = widget.taskService;
+    searchController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   String getLocalizedCategory(String key) {
@@ -138,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
 
                   if (pickedDate == null) {
-                    // Пользователь отменил выбор даты: допускаем добавление без дедлайна
                     final addWithoutDeadline = await showDialog<bool>(
                       context: parentContext,
                       builder: (context) {
@@ -226,6 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final task = taskService.tasks[index];
     final controller = TextEditingController(text: task.title);
     DateTime? selectedDeadline = task.deadline;
+    int selectedPriority = task.priority;
 
     final localizations = AppLocalizations.of(context)!;
 
@@ -283,6 +296,44 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   },
                 ),
+                SizedBox(height: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Приоритет:',
+                        style: Theme.of(context).textTheme.labelMedium),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildPriorityButton(
+                          context,
+                          'Низкий',
+                          1,
+                          selectedPriority,
+                          Colors.blue,
+                          (val) => setState(() => selectedPriority = val),
+                        ),
+                        _buildPriorityButton(
+                          context,
+                          'Средний',
+                          2,
+                          selectedPriority,
+                          Colors.orange,
+                          (val) => setState(() => selectedPriority = val),
+                        ),
+                        _buildPriorityButton(
+                          context,
+                          'Высокий',
+                          3,
+                          selectedPriority,
+                          Colors.red,
+                          (val) => setState(() => selectedPriority = val),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
             actions: [
@@ -301,6 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       task.subcategory,
                       selectedDeadline,
                     );
+                    taskService.updateTaskPriority(index, selectedPriority);
                   });
                   Navigator.pop(context);
                 },
@@ -313,10 +365,83 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildPriorityButton(
+    BuildContext context,
+    String label,
+    int priority,
+    int selectedPriority,
+    Color color,
+    Function(int) onTap,
+  ) {
+    final isSelected = selectedPriority == priority;
+    return GestureDetector(
+      onTap: () => onTap(priority),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.transparent,
+          border: Border.all(color: color, width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
   double getProgress() {
     if (taskService.tasks.isEmpty) return 0;
     int completed = taskService.tasks.where((t) => t.isDone).length;
     return completed / taskService.tasks.length;
+  }
+
+  /// Получить отфильтрованный и отсортированный список задач
+  List<Task> getFilteredAndSortedTasks() {
+    List<Task> filtered = showOnlyIncomplete
+        ? taskService.getIncompleteTasksOnly()
+        : List<Task>.from(taskService.tasks);
+
+    final searchText = searchController.text.toLowerCase();
+    if (searchText.isNotEmpty) {
+      filtered = filtered
+          .where((task) => task.title.toLowerCase().contains(searchText))
+          .toList();
+    }
+
+    if (sortByOption == 'по приоритету') {
+      filtered.sort((a, b) {
+        if (a.priority != b.priority) {
+          return b.priority.compareTo(a.priority);
+        }
+        if (a.deadline == null && b.deadline == null) return 0;
+        if (a.deadline == null) return 1;
+        if (b.deadline == null) return -1;
+        return a.deadline!.compareTo(b.deadline!);
+      });
+    } else if (sortByOption == 'по дате') {
+      filtered.sort((a, b) {
+        if (a.deadline == null && b.deadline == null) return 0;
+        if (a.deadline == null) return 1;
+        if (b.deadline == null) return -1;
+        return a.deadline!.compareTo(b.deadline!);
+      });
+    }
+
+    return filtered;
+  }
+
+  int getOriginalIndex(Task task) {
+    for (int i = 0; i < taskService.tasks.length; i++) {
+      if (identical(taskService.tasks[i], task)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   @override
@@ -372,6 +497,106 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+
+          // Поиск и фильтр
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Column(
+              children: [
+                TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Поиск задач...',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            showOnlyIncomplete = !showOnlyIncomplete;
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: showOnlyIncomplete
+                                ? colorScheme.primaryContainer
+                                : colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: showOnlyIncomplete,
+                                onChanged: (_) {
+                                  setState(() {
+                                    showOnlyIncomplete = !showOnlyIncomplete;
+                                  });
+                                },
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'Только активные',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: showOnlyIncomplete
+                                        ? colorScheme.onPrimaryContainer
+                                        : colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownMenu<String>(
+                        initialSelection: sortByOption,
+                        onSelected: (String? value) {
+                          setState(() {
+                            sortByOption = value ?? 'по приоритету';
+                          });
+                        },
+                        dropdownMenuEntries: [
+                          DropdownMenuEntry(
+                            value: 'по приоритету',
+                            label: 'Приоритет',
+                          ),
+                          DropdownMenuEntry(
+                            value: 'по дате',
+                            label: 'Дата',
+                          ),
+                          DropdownMenuEntry(
+                            value: 'без сортировки',
+                            label: 'Нет сортировки',
+                          ),
+                        ],
+                        width: 140,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Column(
@@ -380,73 +605,127 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 8),
                 Text(
                   '${(getProgress() * 100).toStringAsFixed(0)}% ${localizations.completed}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontSize: 14),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
                 ),
                 SizedBox(height: 12),
               ],
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: taskService.tasks.length,
-              itemBuilder: (context, index) {
-                var task = taskService.tasks[index];
 
-                return Dismissible(
-                  key: Key(task.title + index.toString()),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    setState(() {
-                      taskService.deleteTask(index);
-                    });
-                  },
-                  background: Container(
-                    color: Theme.of(context).colorScheme.error,
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20),
-                    child: Icon(
-                      Icons.delete,
-                      color: Theme.of(context).colorScheme.onError,
+          Expanded(
+            child: getFilteredAndSortedTasks().isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle_outline,
+                            size: 64, color: colorScheme.outlineVariant),
+                        SizedBox(height: 16),
+                        Text('Нет задач',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.outlineVariant,
+                            )),
+                      ],
                     ),
-                  ),
-                  child: TaskTile(
-                    task: task,
-                    onTap: () {
-                      setState(() {
-                        taskService.toggleTask(index);
-                      });
-                    },
-                    onEditTitle: () => editTaskTitle(index),
-                    onDelete: () {
-                      setState(() {
-                        taskService.deleteTask(index);
-                      });
-                    },
-                    onAddComment: () => addCommentToTask(index),
-                    onEditCategory: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SubcategoriesScreen(
-                            taskService: taskService,
-                            taskIndex: index,
+                  )
+                : ListView.builder(
+                    itemCount: getFilteredAndSortedTasks().length,
+                    itemBuilder: (context, filteredIndex) {
+                      final task = getFilteredAndSortedTasks()[filteredIndex];
+                      final index = getOriginalIndex(task);
+
+                      return AnimatedOpacity(
+                        opacity: task.isDone ? 0.6 : 1.0,
+                        duration: Duration(milliseconds: 300),
+                        child: AnimatedSlide(
+                          offset: task.isDone ? Offset(0.05, 0) : Offset.zero,
+                          duration: Duration(milliseconds: 300),
+                          child: Dismissible(
+                            key: Key(task.title + index.toString()),
+                            direction: DismissDirection.endToStart,
+                            onDismissed: (direction) {
+                              setState(() {
+                                taskService.deleteTask(index);
+                              });
+                            },
+                            background: Container(
+                              color: Theme.of(context).colorScheme.error,
+                              alignment: Alignment.centerRight,
+                              padding: EdgeInsets.only(right: 20),
+                              child: Icon(
+                                Icons.delete,
+                                color: Theme.of(context).colorScheme.onError,
+                              ),
+                            ),
+                            child: Stack(
+                              children: [
+                                TaskTile(
+                                  task: task,
+                                  onTap: () {
+                                    setState(() {
+                                      taskService.toggleTask(index);
+                                    });
+                                  },
+                                  onEditTitle: () => editTaskTitle(index),
+                                  onDelete: () {
+                                    setState(() {
+                                      taskService.deleteTask(index);
+                                    });
+                                  },
+                                  onAddComment: () =>
+                                      addCommentToTask(index),
+                                  onEditCategory: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            SubcategoriesScreen(
+                                          taskService: taskService,
+                                          taskIndex: index,
+                                        ),
+                                      ),
+                                    ).then((result) {
+                                      if (result == true) {
+                                        setState(() {});
+                                      }
+                                    });
+                                  },
+                                ),
+                                // Индикатор приоритета слева
+                                Positioned(
+                                  left: 0,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    width: 4,
+                                    decoration: BoxDecoration(
+                                      color: _getPriorityColor(task.priority),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ).then((result) {
-                        if (result == true) {
-                          setState(() {});
-                        }
-                      });
+                      );
                     },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
     );
+  }
+
+  Color _getPriorityColor(int priority) {
+    switch (priority) {
+      case 1:
+        return Colors.blue;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }
