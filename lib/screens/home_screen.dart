@@ -112,7 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               if (controller.text.trim().isEmpty) return;
               setState(() {
-                taskService.addComment(index, controller.text.trim());
+                // Используем новый метод с атрибуцией автора
+                taskService.addCommentWithAttribution(
+                  index,
+                  controller.text.trim(),
+                  author: taskService.currentUserName ?? 'Я',
+                );
               });
               Navigator.pop(context);
             },
@@ -238,7 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final task = taskService.tasks[index];
     final controller = TextEditingController(text: task.title);
     DateTime? selectedDeadline = task.deadline;
+    DateTime? selectedTeamDeadline = task.teamDeadline;
     int selectedPriority = task.priority;
+    String? selectedAssignee = task.assignedTo;
 
     final localizations = AppLocalizations.of(context)!;
 
@@ -248,93 +255,147 @@ class _HomeScreenState extends State<HomeScreen> {
         return StatefulBuilder(
           builder: (context, setState) => AlertDialog(
             title: Text(localizations.editTask),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: controller,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: localizations.newTaskTitle,
-                    hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: controller,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withAlpha(0x40),
+                    decoration: InputDecoration(
+                      hintText: localizations.newTaskTitle,
+                      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withAlpha(0x40),
+                        ),
                       ),
                     ),
+                    autofocus: true,
                   ),
-                  autofocus: true,
-                ),
-                SizedBox(height: 16),
-                ListTile(
-                  title: Text(localizations.deadline),
-                  subtitle: selectedDeadline != null
-                      ? Text(
-                          selectedDeadline!.toLocal().toString().split(' ')[0],
-                        )
-                      : Text('Не установлено'),
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDeadline ?? DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
-                    );
-                    if (picked != null) {
-                      setState(() {
-                        selectedDeadline = picked;
-                      });
-                    }
-                  },
-                ),
-                SizedBox(height: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Приоритет:',
-                        style: Theme.of(context).textTheme.labelMedium),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildPriorityButton(
-                          context,
-                          'Низкий',
-                          1,
-                          selectedPriority,
-                          Colors.blue,
-                          (val) => setState(() => selectedPriority = val),
+                  SizedBox(height: 16),
+                  ListTile(
+                    title: Text(localizations.deadline),
+                    subtitle: selectedDeadline != null
+                        ? Text(
+                            selectedDeadline!.toLocal().toString().split(' ')[0],
+                          )
+                        : Text('Не установлено'),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDeadline ?? DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          selectedDeadline = picked;
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  // Командный дедлайн
+                  ListTile(
+                    title: Text('Командный дедлайн'),
+                    subtitle: selectedTeamDeadline != null
+                        ? Text(
+                            selectedTeamDeadline!.toLocal().toString().split(' ')[0],
+                          )
+                        : Text('Не установлено'),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedTeamDeadline ?? DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          selectedTeamDeadline = picked;
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  // Назначение исполнителя
+                  if (taskService.teamMembers.isNotEmpty)
+                    DropdownButtonFormField<String>(
+                      value: selectedAssignee,
+                      decoration: InputDecoration(
+                        labelText: 'Назначить',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        _buildPriorityButton(
-                          context,
-                          'Средний',
-                          2,
-                          selectedPriority,
-                          Colors.orange,
-                          (val) => setState(() => selectedPriority = val),
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text('Не назначено'),
                         ),
-                        _buildPriorityButton(
-                          context,
-                          'Высокий',
-                          3,
-                          selectedPriority,
-                          Colors.red,
-                          (val) => setState(() => selectedPriority = val),
-                        ),
+                        ...taskService.teamMembers.map((member) {
+                          return DropdownMenuItem(
+                            value: member.name,
+                            child: Text(member.name),
+                          );
+                        }).toList(),
                       ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedAssignee = value;
+                        });
+                      },
                     ),
-                  ],
-                ),
-              ],
+                  SizedBox(height: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Приоритет:',
+                          style: Theme.of(context).textTheme.labelMedium),
+                      SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildPriorityButton(
+                            context,
+                            'Низкий',
+                            1,
+                            selectedPriority,
+                            Colors.blue,
+                            (val) => setState(() => selectedPriority = val),
+                          ),
+                          _buildPriorityButton(
+                            context,
+                            'Средний',
+                            2,
+                            selectedPriority,
+                            Colors.orange,
+                            (val) => setState(() => selectedPriority = val),
+                          ),
+                          _buildPriorityButton(
+                            context,
+                            'Высокий',
+                            3,
+                            selectedPriority,
+                            Colors.red,
+                            (val) => setState(() => selectedPriority = val),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -351,6 +412,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       task.category,
                       task.subcategory,
                       selectedDeadline,
+                      teamDeadline: selectedTeamDeadline,
+                      assignedTo: selectedAssignee,
                     );
                     taskService.updateTaskPriority(index, selectedPriority);
                   });

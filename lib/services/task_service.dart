@@ -1,10 +1,21 @@
 import '../models/task.dart';
+import '../models/team_member.dart';
+import '../models/productivity_stats.dart';
 
 class TaskService {
   List<Task> tasks = [];
   int experience = 0;
   int completedTotal = 0;
   final Set<String> achievements = {};
+
+  // Коллаборация
+  List<TeamMember> teamMembers = [];
+  String? currentUserId;
+  String? currentUserName;
+
+  // Аналитика
+  late ProductivityStats productivityStats;
+  Map<String, List<TaskChange>> changeHistory = {};
 
   final Map<String, List<String>> categories = {
     'work': ['projects', 'meetings', 'reports', 'other'],
@@ -13,33 +24,95 @@ class TaskService {
     'general': ['standard'],
   };
 
+  TaskService() {
+    productivityStats = ProductivityStats();
+    _initializeProductivityStats();
+  }
+
+  void _initializeProductivityStats() {
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    productivityStats.dailyStats[today] = DailyStats(
+      date: today,
+      tasksCompleted: 0,
+      totalTasks: 0,
+    );
+  }
+
   void addTask(
     String title, {
     String category = 'Общие',
     String? subcategory,
     DateTime? deadline,
+    DateTime? teamDeadline,
+    String? assignedTo,
   }) {
-    tasks.add(
-      Task(
-        title: title,
-        category: category,
-        subcategory: subcategory,
-        deadline: deadline,
-        comments: [],
-      ),
+    final task = Task(
+      title: title,
+      category: category,
+      subcategory: subcategory,
+      deadline: deadline,
+      teamDeadline: teamDeadline,
+      assignedTo: assignedTo,
+      comments: [],
     );
+    tasks.add(task);
+    
+    // Обновляем статистику
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    if (!productivityStats.dailyStats.containsKey(today)) {
+      productivityStats.dailyStats[today] = DailyStats(
+        date: today,
+        tasksCompleted: 0,
+        totalTasks: 0,
+      );
+    }
+    productivityStats.dailyStats[today]?.totalTasks += 1;
+    
+    // Инициализируем историю изменений
+    changeHistory['task_${tasks.length - 1}'] = [];
+    _recordChange(tasks.length - 1, 'Создание', '', title);
   }
 
   void toggleTask(int index) {
     final task = tasks[index];
     final nowDone = !task.isDone;
     task.isDone = nowDone;
+    
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    if (!productivityStats.dailyStats.containsKey(today)) {
+      productivityStats.dailyStats[today] = DailyStats(
+        date: today,
+        tasksCompleted: 0,
+        totalTasks: 0,
+      );
+    }
 
     if (nowDone) {
       if (!task.xpGranted) {
         experience += 20;
         completedTotal += 1;
         task.xpGranted = true;
+        task.completedAt = DateTime.now();
+        
+        // Отслеживание аналитики
+        productivityStats.dailyStats[today]?.tasksCompleted += 1;
+        
+        final hour = DateTime.now().hour;
+        productivityStats.completionByHour[hour] = 
+            (productivityStats.completionByHour[hour] ?? 0) + 1;
+        
+        productivityStats.completionByCategory[task.category] = 
+            (productivityStats.completionByCategory[task.category] ?? 0) + 1;
+        
+        // Отслеживание пропущенных дедлайнов
+        if (task.teamDeadline != null && DateTime.now().isAfter(task.teamDeadline!)) {
+          productivityStats.missedDeadlines.add(index);
+        }
+        
+        final completionTimes = productivityStats.dailyStats[today]?.completionTimes ?? [];
+        productivityStats.dailyStats[today]?.completionTimes = [...completionTimes, DateTime.now()];
+        
+        _recordChange(index, 'Статус', 'В процессе', 'Выполнено');
         _updateAchievements();
       }
     } else {
@@ -47,6 +120,13 @@ class TaskService {
         experience = (experience - 20).clamp(0, experience);
         completedTotal = (completedTotal - 1).clamp(0, completedTotal);
         task.xpGranted = false;
+        task.completedAt = null;
+        
+        // Обновляем статистику
+        productivityStats.dailyStats[today]?.tasksCompleted = 
+            (productivityStats.dailyStats[today]?.tasksCompleted ?? 0) - 1;
+        
+        _recordChange(index, 'Статус', 'Выполнено', 'В процессе');
         _updateAchievements();
       }
     }
@@ -76,11 +156,30 @@ class TaskService {
     String category,
     String? subcategory,
     DateTime? deadline,
+    {DateTime? teamDeadline, String? assignedTo}
   ) {
-    tasks[index].title = title;
-    tasks[index].category = category;
-    tasks[index].subcategory = subcategory;
-    tasks[index].deadline = deadline;
+    final task = tasks[index];
+    _recordChange(index, 'Название', task.title, title);
+    _recordChange(index, 'Категория', task.category, category);
+    if (task.subcategory != subcategory) {
+      _recordChange(index, 'Подкатегория', task.subcategory ?? '', subcategory ?? '');
+    }
+    if (task.deadline != deadline) {
+      _recordChange(index, 'Дедлайн', task.deadline?.toString() ?? '', deadline?.toString() ?? '');
+    }
+    if (task.teamDeadline != teamDeadline) {
+      _recordChange(index, 'Командный дедлайн', task.teamDeadline?.toString() ?? '', teamDeadline?.toString() ?? '');
+    }
+    if (task.assignedTo != assignedTo) {
+      _recordChange(index, 'Назначено', task.assignedTo ?? '', assignedTo ?? '');
+    }
+    
+    task.title = title;
+    task.category = category;
+    task.subcategory = subcategory;
+    task.deadline = deadline;
+    task.teamDeadline = teamDeadline;
+    task.assignedTo = assignedTo;
   }
 
   void updateTaskPriority(int index, int priority) {
@@ -146,4 +245,151 @@ class TaskService {
     });
     return incomplete;
   }
+
+  // ===================== КОЛЛАБОРАЦИЯ =====================
+
+  void addTeamMember(TeamMember member) {
+    if (!teamMembers.any((m) => m.id == member.id)) {
+      teamMembers.add(member);
+    }
+  }
+
+  void removeTeamMember(String memberId) {
+    teamMembers.removeWhere((m) => m.id == memberId);
+  }
+
+  void setCurrentUser(String userId, String userName) {
+    currentUserId = userId;
+    currentUserName = userName;
+  }
+
+  void assignTaskToMember(int taskIndex, String memberId) {
+    if (taskIndex < 0 || taskIndex >= tasks.length) return;
+    final member = teamMembers.firstWhere(
+      (m) => m.id == memberId,
+      orElse: () => TeamMember(id: memberId, name: memberId, role: 'unknown'),
+    );
+    _recordChange(taskIndex, 'Исполнитель', tasks[taskIndex].assignedTo ?? 'Не назначено', member.name);
+    tasks[taskIndex].assignedTo = member.name;
+  }
+
+  void addCommentWithAttribution(int taskIndex, String comment, {String? author}) {
+    if (taskIndex < 0 || taskIndex >= tasks.length) return;
+    if (comment.trim().isEmpty) return;
+    
+    final attributedComment = author != null && author.isNotEmpty
+        ? '[$author]: ${comment.trim()}'
+        : comment.trim();
+    
+    tasks[taskIndex].comments.add(attributedComment);
+    _recordChange(taskIndex, 'Комментарий', '', attributedComment);
+  }
+
+  List<String> getTaskComments(int taskIndex) {
+    if (taskIndex < 0 || taskIndex >= tasks.length) return [];
+    return tasks[taskIndex].comments;
+  }
+
+  List<TaskChange> getTaskChangeHistory(int taskIndex) {
+    final key = 'task_$taskIndex';
+    return changeHistory[key] ?? [];
+  }
+
+  void _recordChange(int taskIndex, String field, String oldValue, String newValue) {
+    final key = 'task_$taskIndex';
+    if (!changeHistory.containsKey(key)) {
+      changeHistory[key] = [];
+    }
+    
+    final change = TaskChange(
+      field: field,
+      oldValue: oldValue,
+      newValue: newValue,
+      changedAt: DateTime.now(),
+      changedBy: currentUserName,
+    );
+    
+    changeHistory[key]?.add(change);
+  }
+
+  // ===================== АНАЛИТИКА ПРОДУКТИВНОСТИ =====================
+
+  Map<String, dynamic> getProductivityOverview() {
+    return {
+      'totalTasksCreated': productivityStats.totalTasksCreated,
+      'totalTasksCompleted': productivityStats.totalTasksCompleted,
+      'averageCompletionRate': productivityStats.averageCompletionRate.toStringAsFixed(1),
+      'mostProductiveDay': productivityStats.mostProductiveDay,
+      'mostProductiveHour': productivityStats.mostProductiveHour,
+      'missedDeadlines': productivityStats.missedDeadlines.length,
+    };
+  }
+
+  DateTime? getMostProductiveDay() {
+    if (productivityStats.dailyStats.isEmpty) return null;
+    return productivityStats.mostProductiveDay;
+  }
+
+  int getMostProductiveHour() {
+    return productivityStats.mostProductiveHour;
+  }
+
+  Map<String, int> getCompletionByCategory() {
+    return productivityStats.completionByCategory;
+  }
+
+  Map<DateTime, DailyStats> getDailyStats() {
+    return productivityStats.dailyStats;
+  }
+
+  List<int> getMissedDeadlines() {
+    return productivityStats.missedDeadlines;
+  }
+
+  double getAverageCompletionRate() {
+    return productivityStats.averageCompletionRate;
+  }
+
+  List<Task> getTasksDueToday() {
+    final today = DateTime.now();
+    return tasks.where((task) {
+      if (task.teamDeadline == null) return false;
+      return task.teamDeadline!.year == today.year &&
+          task.teamDeadline!.month == today.month &&
+          task.teamDeadline!.day == today.day;
+    }).toList();
+  }
+
+  List<Task> getOverdueTasks() {
+    final now = DateTime.now();
+    return tasks.where((task) {
+      if (task.teamDeadline == null || task.isDone) return false;
+      return task.teamDeadline!.isBefore(now);
+    }).toList();
+  }
+
+  List<Task> getTasksByAssignee(String assigneeName) {
+    return tasks.where((task) => task.assignedTo == assigneeName).toList();
+  }
+
+  Map<String, List<Task>> getTasksByTeam() {
+    final result = <String, List<Task>>{};
+    for (final task in tasks) {
+      final assignee = task.assignedTo ?? 'Не назначено';
+      result.putIfAbsent(assignee, () => []);
+      result[assignee]?.add(task);
+    }
+    return result;
+  }
+
+  int getCompletionCountForDate(DateTime date) {
+    final stats = productivityStats.dailyStats[date];
+    return stats?.tasksCompleted ?? 0;
+  }
+
+  double getCompletionRateForDate(DateTime date) {
+    final stats = productivityStats.dailyStats[date];
+    return stats?.completionRate ?? 0;
+  }
 }
+

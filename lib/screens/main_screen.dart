@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
+import 'collaboration_screen.dart';
+import 'productivity_analytics_screen.dart';
 import '../services/task_service.dart';
 import '../l10n/app_localizations.dart';
 
@@ -33,6 +35,8 @@ class _MainScreenState extends State<MainScreen> {
     return [
       HomeScreen(taskService: taskService),
       StatsScreen(taskService: taskService),
+      CollaborationScreen(taskService: taskService),
+      ProductivityAnalyticsScreen(taskService: taskService),
       SettingsScreen(
         onToggleTheme: widget.onToggleTheme,
         isDarkMode: widget.isDarkMode,
@@ -59,11 +63,20 @@ class _MainScreenState extends State<MainScreen> {
             label: localizations.statistics,
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Коллаборация',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up),
+            label: 'Аналитика',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: localizations.settings,
           ),
         ],
         currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.shifting,
         //selectedItemColor: Colors.indigo,
         onTap: _onItemTapped,
       ),

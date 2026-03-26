@@ -177,6 +177,44 @@ class TaskTile extends StatelessWidget {
                     ],
                   ),
                 ],
+                if (task.teamDeadline != null) ...[
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Командный: ${task.teamDeadline!.toLocal().toString().split(' ')[0]} ${task.teamDeadline!.toLocal().toString().split(' ')[1].substring(0, 5)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (task.assignedTo != null) ...[
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Исполнитель: ${task.assignedTo}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (task.comments.isNotEmpty) ...[
                   Divider(color: colorScheme.onSurfaceVariant.withAlpha(120)),
                   Align(
