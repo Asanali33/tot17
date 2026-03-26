@@ -83,7 +83,67 @@ class TaskService {
     tasks[index].deadline = deadline;
   }
 
+  void updateTaskPriority(int index, int priority) {
+    if (priority >= 1 && priority <= 3) {
+      tasks[index].priority = priority;
+    }
+  }
+
   void clearAllTasks() {
     tasks.clear();
+  }
+
+  /// Сортировка по приоритету (высокий -> низкий)
+  List<Task> getSortedByPriority() {
+    final sorted = List<Task>.from(tasks);
+    sorted.sort((a, b) => b.priority.compareTo(a.priority));
+    return sorted;
+  }
+
+  /// Сортировка по дате (ближайшие дедлайны первыми)
+  List<Task> getSortedByDeadline() {
+    final sorted = List<Task>.from(tasks);
+    sorted.sort((a, b) {
+      if (a.deadline == null && b.deadline == null) return 0;
+      if (a.deadline == null) return 1;
+      if (b.deadline == null) return -1;
+      return a.deadline!.compareTo(b.deadline!);
+    });
+    return sorted;
+  }
+
+  /// Комбинированная сортировка: сначала по приоритету, потом по дате
+  List<Task> getSortedByPriorityAndDeadline() {
+    final sorted = List<Task>.from(tasks);
+    sorted.sort((a, b) {
+      if (a.priority != b.priority) {
+        return b.priority.compareTo(a.priority);
+      }
+      if (a.deadline == null && b.deadline == null) return 0;
+      if (a.deadline == null) return 1;
+      if (b.deadline == null) return -1;
+      return a.deadline!.compareTo(b.deadline!);
+    });
+    return sorted;
+  }
+
+  /// Фильтр незавершенных задач
+  List<Task> getIncompleteTasksOnly() {
+    return tasks.where((task) => !task.isDone).toList();
+  }
+
+  /// Получить отсортированные незавершенные задачи
+  List<Task> getIncompleteTasksSortedByPriorityAndDeadline() {
+    final incomplete = getIncompleteTasksOnly();
+    incomplete.sort((a, b) {
+      if (a.priority != b.priority) {
+        return b.priority.compareTo(a.priority);
+      }
+      if (a.deadline == null && b.deadline == null) return 0;
+      if (a.deadline == null) return 1;
+      if (b.deadline == null) return -1;
+      return a.deadline!.compareTo(b.deadline!);
+    });
+    return incomplete;
   }
 }
