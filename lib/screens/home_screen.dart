@@ -114,10 +114,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (controller.text.isEmpty) return;
 
     final localizations = AppLocalizations.of(context)!;
+    final parentContext = context;
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: Text(localizations.selectCategory),
           content: Column(
@@ -126,24 +127,73 @@ class _HomeScreenState extends State<HomeScreen> {
               return ListTile(
                 title: Text(getLocalizedCategory(categoryKey)),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
 
                   DateTime? deadline;
                   final pickedDate = await showDatePicker(
-                    context: context,
+                    context: parentContext,
                     initialDate: DateTime.now().add(Duration(days: 1)),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                   );
 
-                  if (pickedDate != null) {
+                  if (pickedDate == null) {
+                    // Пользователь отменил выбор даты: допускаем добавление без дедлайна
+                    final addWithoutDeadline = await showDialog<bool>(
+                      context: parentContext,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text(localizations.deadline),
+                          content: Text(
+                            'Дедлайн не выбран. Добавить задачу без дедлайна?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text(localizations.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: Text(localizations.save),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (addWithoutDeadline != true) return;
+                  } else {
                     final pickedTime = await showTimePicker(
-                      context: context,
+                      context: parentContext,
                       initialTime: TimeOfDay(hour: 23, minute: 59),
                       helpText: 'Выберите время дедлайна',
                     );
 
-                    if (pickedTime != null) {
+                    if (pickedTime == null) {
+                      final addWithoutDeadline = await showDialog<bool>(
+                        context: parentContext,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text(localizations.deadline),
+                            content: Text(
+                              'Время не выбрано. Добавить задачу без дедлайна?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(localizations.cancel),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text(localizations.save),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (addWithoutDeadline != true) return;
+                    } else {
                       deadline = DateTime(
                         pickedDate.year,
                         pickedDate.month,
@@ -157,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     selectedCategory = categoryKey;
                     taskService.addTask(
-                      controller.text,
+                      controller.text.trim(),
                       category: categoryKey,
                       deadline: deadline,
                     );
