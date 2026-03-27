@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/task_service.dart';
+import '../l10n/app_localizations.dart';
 
 class SubcategoriesScreen extends StatefulWidget {
   final TaskService taskService;
@@ -23,16 +24,69 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
   void initState() {
     super.initState();
     selectedCategory = widget.taskService.tasks[widget.taskIndex].category;
-    selectedSubcategory = widget.taskService.tasks[widget.taskIndex].subcategory;
+    selectedSubcategory =
+        widget.taskService.tasks[widget.taskIndex].subcategory;
+  }
+
+  String getLocalizedCategory(String key) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'work':
+        return localizations.work;
+      case 'personal':
+        return localizations.personal;
+      case 'shopping':
+        return localizations.shopping;
+      case 'general':
+        return localizations.general;
+      default:
+        return key;
+    }
+  }
+
+  String getLocalizedSubcategory(String key) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'projects':
+        return localizations.projects;
+      case 'meetings':
+        return localizations.meetings;
+      case 'reports':
+        return localizations.reports;
+      case 'sport':
+        return localizations.sport;
+      case 'reading':
+        return localizations.reading;
+      case 'hobby':
+        return localizations.hobby;
+      case 'food':
+        return localizations.food;
+      case 'clothes':
+        return localizations.clothes;
+      case 'home':
+        return localizations.home;
+      case 'standard':
+        return localizations.standard;
+      case 'other':
+        return localizations.other;
+      default:
+        return key;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Выбрать категорию',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          localizations.selectCategory,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -46,8 +100,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               children: [
                 Text(
                   'Категория:',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -55,23 +108,27 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: widget.taskService.categories.keys.map((category) {
+                    children: widget.taskService.categories.keys.map((
+                      categoryKey,
+                    ) {
+                      final isSelected = selectedCategory == categoryKey;
                       return Padding(
                         padding: EdgeInsets.only(right: 8),
                         child: ChoiceChip(
-                          label: Text(category),
-                          selected: selectedCategory == category,
+                          label: Text(getLocalizedCategory(categoryKey)),
+                          selected: isSelected,
                           onSelected: (selected) {
                             setState(() {
-                              selectedCategory = category;
+                              selectedCategory = categoryKey;
                               selectedSubcategory = null;
                             });
                           },
-                          selectedColor: Colors.indigo,
-                          labelStyle: TextStyle(
-                            color: selectedCategory == category
-                                ? Colors.white
-                                : Colors.black,
+                          selectedColor: colorScheme.primaryContainer,
+                          backgroundColor: colorScheme.surfaceContainerHighest,
+                          labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                            color: isSelected
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
                           ),
                         ),
                       );
@@ -89,8 +146,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
               children: [
                 Text(
                   'Подкатегория:',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -98,28 +154,35 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: (widget.taskService.categories[selectedCategory] ?? [])
-                      .map((subcategory) {
-                    return FilterChip(
-                      label: Text(subcategory),
-                      selected: selectedSubcategory == subcategory,
-                      onSelected: (selected) {
-                        setState(() {
-                          selectedSubcategory = selected ? subcategory : null;
-                        });
-                      },
-                      backgroundColor: Colors.grey[200],
-                      selectedColor: Colors.indigo[100],
-                      labelStyle: TextStyle(
-                        color: selectedSubcategory == subcategory
-                            ? Colors.indigo[700]
-                            : Colors.black,
-                        fontWeight: selectedSubcategory == subcategory
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    );
-                  }).toList(),
+                  children:
+                      (widget.taskService.categories[selectedCategory] ?? [])
+                          .map((subcategoryKey) {
+                            final isSelected =
+                                selectedSubcategory == subcategoryKey;
+                            return FilterChip(
+                              label: Text(getLocalizedSubcategory(subcategoryKey)),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  selectedSubcategory = selected
+                                      ? subcategoryKey
+                                      : null;
+                                });
+                              },
+                              backgroundColor:
+                                  colorScheme.surfaceContainerHighest,
+                              selectedColor: colorScheme.primaryContainer,
+                              labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: isSelected
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.onSurface,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            );
+                          })
+                          .toList(),
                 ),
               ],
             ),
@@ -136,19 +199,19 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen> {
                     widget.taskService.tasks[widget.taskIndex].title,
                     selectedCategory,
                     selectedSubcategory,
+                    widget.taskService.tasks[widget.taskIndex].deadline,
                   );
                   Navigator.pop(context, true);
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                 ),
                 child: Text(
-                  'Сохранить',
-                  style: TextStyle(
-                    fontSize: 16,
+                  localizations.save,
+                  style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
               ),

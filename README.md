@@ -4,6 +4,9 @@ A new Flutter project.
 
 ## Getting Started
 
+This app now includes a theme switcher – you can toggle between light and dark modes in the **Settings** screen. The selected appearance is saved across launches and the UI elements adapt to show a clear contrast in each mode (backgrounds, cards, buttons, text, navigation bar).
+
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
