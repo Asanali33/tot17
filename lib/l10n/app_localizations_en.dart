@@ -162,6 +162,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTasksForStats => '📝 Add tasks to view statistics';
 
   @override
+  String get searchTasks => 'Search tasks...';
+
+  @override
+  String get onlyActive => 'Only active';
+
+  @override
+  String get priority => 'Priority';
+
+  @override
+  String get byPriority => 'by priority';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get noSorting => 'No sorting';
+
+  @override
+  String get noTasks => 'No tasks';
+
+  @override
   String get standard => 'Standard';
 
   @override

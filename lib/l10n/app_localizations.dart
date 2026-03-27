@@ -404,6 +404,48 @@ abstract class AppLocalizations {
   /// **'📝 Add tasks to view statistics'**
   String get addTasksForStats;
 
+  /// No description provided for @searchTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tasks...'**
+  String get searchTasks;
+
+  /// No description provided for @onlyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Only active'**
+  String get onlyActive;
+
+  /// No description provided for @priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priority;
+
+  /// No description provided for @byPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'by priority'**
+  String get byPriority;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @noSorting.
+  ///
+  /// In en, this message translates to:
+  /// **'No sorting'**
+  String get noSorting;
+
+  /// No description provided for @noTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks'**
+  String get noTasks;
+
   /// No description provided for @standard.
   ///
   /// In en, this message translates to:
