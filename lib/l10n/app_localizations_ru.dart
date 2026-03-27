@@ -162,6 +162,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addTasksForStats => '📝 Добавьте задачи для просмотра статистики';
 
   @override
+  String get searchTasks => 'Поиск задач...';
+
+  @override
+  String get onlyActive => 'Только активные';
+
+  @override
+  String get priority => 'Приоритет';
+
+  @override
+  String get byPriority => 'по приоритету';
+
+  @override
+  String get date => 'Дата';
+
+  @override
+  String get noSorting => 'Нет сортировки';
+
+  @override
+  String get noTasks => 'Нет задач';
+
+  @override
   String get standard => 'Стандартные';
 
   @override
