@@ -18,10 +18,7 @@ class _StatsScreenState extends State<StatsScreen> {
     int remaining = total - completed;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Статистика"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text("Статистика"), centerTitle: true),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -94,7 +91,10 @@ class _StatsScreenState extends State<StatsScreen> {
                     SizedBox(height: 12),
                     Text(
                       "${total > 0 ? ((completed / total) * 100).toStringAsFixed(1) : 0}% выполнено",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -133,7 +133,7 @@ class _StatItem extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -146,10 +146,7 @@ class _StatItem extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8),
-        Text(
-          title,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }
