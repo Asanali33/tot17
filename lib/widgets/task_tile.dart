@@ -9,6 +9,10 @@ class TaskTile extends StatelessWidget {
   final VoidCallback? onEditTitle;
   final VoidCallback? onEditCategory;
   final VoidCallback? onAddComment;
+  final Function(String)? onSetProcrastinationReason;
+
+  // Static set для отслеживания показанных диалогов
+  static final Set<String> _shownProcrastinationDialogs = {};
 
   const TaskTile({
     super.key,
@@ -18,6 +22,7 @@ class TaskTile extends StatelessWidget {
     this.onEditTitle,
     this.onEditCategory,
     this.onAddComment,
+    this.onSetProcrastinationReason,
   });
 
   @override
@@ -25,6 +30,18 @@ class TaskTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final localizations = AppLocalizations.of(context)!;
+
+    // Показать диалог прокрастинации для старых невыполненных задач
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final taskId = task.createdAt.toIso8601String();
+      if (!_shownProcrastinationDialogs.contains(taskId) &&
+          !task.isDone &&
+          task.procrastinationReason == null &&
+          task.createdAt.isBefore(DateTime.now().subtract(const Duration(days: 3))) &&
+          onSetProcrastinationReason != null) {
+        _showProcrastinationDialog(context, taskId);
+      }
+    });
 
     String getLocalizedCategory(String key) {
       switch (key) {
@@ -220,6 +237,45 @@ class TaskTile extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showProcrastinationDialog(BuildContext context, String taskId) {
+    _shownProcrastinationDialogs.add(taskId);
+    final localizations = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(localizations.procrastinationReasons),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildReasonButton(context, localizations.tooTiring),
+            _buildReasonButton(context, localizations.lackOfTime),
+            _buildReasonButton(context, localizations.lackOfMotivation),
+            _buildReasonButton(context, localizations.tooComplex),
+            _buildReasonButton(context, localizations.forgot),
+            _buildReasonButton(context, localizations.otherReason),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(localizations.cancel),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReasonButton(BuildContext context, String reason) {
+    return ListTile(
+      title: Text(reason),
+      onTap: () {
+        onSetProcrastinationReason?.call(reason);
+        Navigator.of(context).pop();
+      },
     );
   }
 }

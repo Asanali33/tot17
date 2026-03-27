@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "TaskFlow - Small Phone Cold Boost",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--device-id",
+                "emulator-5554"
+            ],
+            "preLaunchTask": "launch_small_phone_emulator",
+            "console": "terminal",
+            "flutterMode": "debug",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "TaskFlow - Debug",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "TaskFlow - Profile",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "TaskFlow - Release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "release"
+        }
+    ]
+}
