@@ -3,9 +3,17 @@ import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import '../services/task_service.dart';
+import '../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final VoidCallback onToggleTheme;
+  final bool isDarkMode;
+
+  const MainScreen({
+    super.key,
+    required this.onToggleTheme,
+    required this.isDarkMode,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -14,17 +22,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final TaskService taskService = TaskService();
-  late List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      HomeScreen(taskService: taskService),
-      StatsScreen(taskService: taskService),
-      SettingsScreen(),
-    ];
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,27 +29,42 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  List<Widget> _buildScreens() {
+    return [
+      HomeScreen(taskService: taskService),
+      StatsScreen(taskService: taskService),
+      SettingsScreen(
+        onToggleTheme: widget.onToggleTheme,
+        isDarkMode: widget.isDarkMode,
+        taskService: taskService,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screens = _buildScreens();
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        // Colors come from theme via BottomNavigationBarThemeData
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.checklist),
-            label: 'Задачи',
+            label: localizations.tasks,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Статистика',
+            label: localizations.statistics,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Настройки',
+            label: localizations.settings,
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.indigo,
+        //selectedItemColor: Colors.indigo,
         onTap: _onItemTapped,
       ),
     );

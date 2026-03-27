@@ -1,22 +1,75 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
+import '../l10n/app_localizations.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback? onEditTitle;
   final VoidCallback? onEditCategory;
+  final VoidCallback? onAddComment;
 
   const TaskTile({
     super.key,
     required this.task,
     required this.onTap,
     required this.onDelete,
+    this.onEditTitle,
     this.onEditCategory,
+    this.onAddComment,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final localizations = AppLocalizations.of(context)!;
+
+    String getLocalizedCategory(String key) {
+      switch (key) {
+        case 'work':
+          return localizations.work;
+        case 'personal':
+          return localizations.personal;
+        case 'shopping':
+          return localizations.shopping;
+        case 'general':
+          return localizations.general;
+        default:
+          return key;
+      }
+    }
+
+    String getLocalizedSubcategory(String key) {
+      switch (key) {
+        case 'projects':
+          return localizations.projects;
+        case 'meetings':
+          return localizations.meetings;
+        case 'reports':
+          return localizations.reports;
+        case 'sport':
+          return localizations.sport;
+        case 'reading':
+          return localizations.reading;
+        case 'hobby':
+          return localizations.hobby;
+        case 'food':
+          return localizations.food;
+        case 'clothes':
+          return localizations.clothes;
+        case 'home':
+          return localizations.home;
+        case 'standard':
+          return localizations.standard;
+        case 'other':
+          return localizations.other;
+        default:
+          return key;
+      }
+    }
+
     return Card(
       elevation: 3,
       margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -25,7 +78,9 @@ class TaskTile extends StatelessWidget {
           ListTile(
             leading: Icon(
               task.isDone ? Icons.check_circle : Icons.circle_outlined,
-              color: task.isDone ? Colors.green : Colors.grey,
+              color: task.isDone
+                  ? colorScheme.primary
+                  : colorScheme.onSurface.withAlpha((0.6 * 255).round()),
             ),
             title: Text(
               task.title,
@@ -36,43 +91,130 @@ class TaskTile extends StatelessWidget {
               ),
             ),
             onTap: onTap,
+            onLongPress: onEditTitle,
             trailing: IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
+              icon: Icon(Icons.delete, color: colorScheme.error),
               onPressed: onDelete,
             ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+            child: Column(
               children: [
-                Chip(
-                  label: Text(
-                    task.category,
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  backgroundColor: Colors.indigo[100],
-                  labelPadding: EdgeInsets.symmetric(horizontal: 8),
-                ),
-                if (task.subcategory != null) ...[
-                  SizedBox(width: 8),
-                  Chip(
-                    label: Text(
-                      task.subcategory!,
-                      style: TextStyle(fontSize: 12),
+                Row(
+                  children: [
+                    Chip(
+                      label: Text(
+                        getLocalizedCategory(task.category),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSecondaryContainer,
+                        ),
+                      ),
+                      backgroundColor: colorScheme.secondaryContainer,
+                      labelPadding: EdgeInsets.symmetric(horizontal: 8),
                     ),
-                    backgroundColor: Colors.indigo[50],
-                    labelPadding: EdgeInsets.symmetric(horizontal: 8),
+                    if (task.subcategory != null) ...[
+                      SizedBox(width: 8),
+                      Chip(
+                        label: Text(
+                          getLocalizedSubcategory(task.subcategory!),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        labelPadding: EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ],
+                    Spacer(),
+                    GestureDetector(
+                      onTap: onAddComment,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.comment,
+                            color: colorScheme.primary,
+                            size: 18,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            task.comments.length.toString(),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: onEditCategory,
+                      child: Icon(
+                        Icons.edit,
+                        color: colorScheme.primary,
+                        size: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                if (task.deadline != null) ...[
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '${localizations.deadline}: ${task.deadline!.toLocal().toString().split(' ')[0]} ${task.deadline!.toLocal().toString().split(' ')[1].substring(0, 5)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-                Spacer(),
-                GestureDetector(
-                  onTap: onEditCategory,
-                  child: Icon(
-                    Icons.edit,
-                    color: Colors.indigo,
-                    size: 18,
+                if (task.comments.isNotEmpty) ...[
+                  Divider(color: colorScheme.onSurfaceVariant.withAlpha(120)),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Комментарии:',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 4),
+                  ...task.comments.map(
+                    (comment) => Padding(
+                      padding: EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.circle,
+                            size: 6,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              comment,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

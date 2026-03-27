@@ -6,17 +6,30 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 import 'package:taskflow/main.dart';
+import 'package:taskflow/providers/locale_provider.dart';
 
 void main() {
-  testWidgets('App launches and shows main screen', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const TaskFlowApp());
+  testWidgets('App loads with provider', (WidgetTester tester) async {
+    // Build our app with required providers and trigger a frame.
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [ChangeNotifierProvider(create: (_) => LocaleProvider())],
+        child: const TaskFlowApp(),
+      ),
+    );
 
-    // Verify that the main screen is displayed (check for bottom navigation bar items)
-    expect(find.text('Задачи'), findsOneWidget);
-    expect(find.text('Статистика'), findsOneWidget);
-    expect(find.text('Настройки'), findsOneWidget);
+    // Verify that app bar title exists.
+    expect(find.text('TaskFlow'), findsOneWidget);
+
+    // Enter text and add a task.
+    await tester.enterText(find.byType(TextField).first, 'Test task');
+    await tester.tap(find.text('Добавить'));
+    await tester.pumpAndSettle();
+
+    // After selecting category and adding, task should appear.
+    expect(find.text('Test task'), findsOneWidget);
   });
 }

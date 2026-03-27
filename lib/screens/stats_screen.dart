@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/task_service.dart';
+import '../l10n/app_localizations.dart';
 
 class StatsScreen extends StatefulWidget {
   final TaskService taskService;
@@ -17,8 +18,15 @@ class _StatsScreenState extends State<StatsScreen> {
     int completed = widget.taskService.tasks.where((t) => t.isDone).length;
     int remaining = total - completed;
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: Text("Статистика"), centerTitle: true),
+      appBar: AppBar(
+        title: Text("Статистика"),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -26,15 +34,15 @@ class _StatsScreenState extends State<StatsScreen> {
           children: [
             Card(
               elevation: 3,
+              color: theme.cardColor,
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Общая статистика",
-                      style: TextStyle(
-                        fontSize: 18,
+                      localizations.overallStatistics,
+                      style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -43,19 +51,19 @@ class _StatsScreenState extends State<StatsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _StatItem(
-                          title: "Всего",
+                          title: localizations.total,
                           value: total.toString(),
-                          color: Colors.blue,
+                          color: colorScheme.primary,
                         ),
                         _StatItem(
-                          title: "Выполнено",
+                          title: localizations.completed,
                           value: completed.toString(),
-                          color: Colors.green,
+                          color: colorScheme.secondary,
                         ),
                         _StatItem(
-                          title: "Осталось",
+                          title: localizations.remaining,
                           value: remaining.toString(),
-                          color: Colors.orange,
+                          color: colorScheme.tertiary,
                         ),
                       ],
                     ),
@@ -72,9 +80,8 @@ class _StatsScreenState extends State<StatsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Прогресс выполнения",
-                      style: TextStyle(
-                        fontSize: 18,
+                      localizations.progress,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -84,17 +91,16 @@ class _StatsScreenState extends State<StatsScreen> {
                       child: LinearProgressIndicator(
                         value: total > 0 ? completed / total : 0,
                         minHeight: 20,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation(Colors.green),
+                        backgroundColor: colorScheme.onSurface.withAlpha(
+                          (0.2 * 255).round(),
+                        ),
+                        valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                       ),
                     ),
                     SizedBox(height: 12),
                     Text(
                       "${total > 0 ? ((completed / total) * 100).toStringAsFixed(1) : 0}% выполнено",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -104,8 +110,10 @@ class _StatsScreenState extends State<StatsScreen> {
             if (total == 0)
               Center(
                 child: Text(
-                  "📝 Добавьте задачи для просмотра статистики",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  localizations.addTasksForStats,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
           ],
@@ -133,7 +141,7 @@ class _StatItem extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.2),
+            color: color.withOpacity(0.2),
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -146,7 +154,10 @@ class _StatItem extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8),
-        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          title,
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
       ],
     );
   }

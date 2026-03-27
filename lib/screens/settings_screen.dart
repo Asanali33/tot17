@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/task_service.dart';
+import '../providers/locale_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final VoidCallback onToggleTheme;
+  final bool isDarkMode;
+  final TaskService taskService;
+
+  const SettingsScreen({
+    super.key,
+    required this.onToggleTheme,
+    required this.isDarkMode,
+    required this.taskService,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -9,35 +22,42 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled = true;
-  bool darkMode = false;
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final localeProvider = context.watch<LocaleProvider>();
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Настройки"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(localizations.settings), centerTitle: true),
       body: ListView(
         children: [
           Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              "Основные",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
+              localizations.general,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Card(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Theme.of(context).cardColor,
             child: ListTile(
-              title: Text("Уведомления"),
-              subtitle: Text("Получайте напоминания о задачах"),
+              title: Text(localizations.notifications),
+              subtitle: Text(localizations.getReminders),
               trailing: Switch(
                 value: notificationsEnabled,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                activeTrackColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withAlpha((0.5 * 255).round()),
+                inactiveThumbColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                inactiveTrackColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.3 * 255).round()),
                 onChanged: (value) {
                   setState(() {
                     notificationsEnabled = value;
@@ -48,43 +68,98 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Card(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Theme.of(context).cardColor,
             child: ListTile(
-              title: Text("Тёмная тема"),
-              subtitle: Text("Использовать тёмный режим"),
+              title: Text(localizations.darkTheme),
+              subtitle: Text(localizations.useDarkMode),
               trailing: Switch(
-                value: darkMode,
+                value: widget.isDarkMode,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                activeTrackColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withAlpha((0.5 * 255).round()),
+                inactiveThumbColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                inactiveTrackColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.3 * 255).round()),
                 onChanged: (value) {
-                  setState(() {
-                    darkMode = value;
-                  });
+                  widget.onToggleTheme();
                 },
               ),
+            ),
+          ),
+          Card(
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Theme.of(context).cardColor,
+            child: ListTile(
+              title: Text(localizations.language),
+              subtitle: Text(localeProvider.locale.languageCode == 'ru' ? localizations.russian : localizations.english),
+              trailing: Icon(Icons.language),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(localizations.selectLanguage),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text(localizations.russian),
+                          leading: Radio<String>(
+                            value: 'ru',
+                            groupValue: localeProvider.locale.languageCode,
+                            onChanged: (value) {
+                              if (value != null) {
+                                localeProvider.setLocale(Locale(value));
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        ),
+                        ListTile(
+                          title: Text(localizations.english),
+                          leading: Radio<String>(
+                            value: 'en',
+                            groupValue: localeProvider.locale.languageCode,
+                            onChanged: (value) {
+                              if (value != null) {
+                                localeProvider.setLocale(Locale(value));
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              "О приложении",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
+              localizations.aboutApp,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Card(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
               title: Text("TaskFlow"),
-              subtitle: Text("Версия 1.0.0"),
+              subtitle: Text("${localizations.version} 1.0.0"),
               leading: Icon(Icons.info),
             ),
           ),
           Card(
             margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
-              title: Text("О разработчике"),
-              subtitle: Text("Приложение для управления задачами"),
+              title: Text(localizations.aboutDeveloper),
+              subtitle: Text(localizations.taskManager),
               leading: Icon(Icons.person),
             ),
           ),
@@ -95,31 +170,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text("Подтверждение"),
-                    content: Text("Вы уверены, что хотите очистить все задачи?"),
+                    title: Text(localizations.confirm),
+                    content: Text(
+                      localizations.sureClearTasks,
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text("Отмена"),
+                        child: Text(localizations.cancel),
                       ),
                       TextButton(
                         onPressed: () {
+                          widget.taskService.clearAllTasks();
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Все задачи очищены")),
+                            SnackBar(content: Text(localizations.allTasksCleared)),
                           );
                         },
-                        child: Text("Очистить"),
+                        child: Text(localizations.clear),
                       ),
                     ],
                   ),
                 );
               },
               icon: Icon(Icons.delete),
-              label: Text("Очистить все задачи"),
+              label: Text(localizations.clearAllTasks),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
               ),
             ),
           ),
