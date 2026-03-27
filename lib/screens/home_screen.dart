@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         _buildPriorityButton(
                           context,
-                          'Низкий',
+                          AppLocalizations.of(context)!.lowPriority,
                           1,
                           selectedPriority,
                           Colors.blue,
@@ -316,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         _buildPriorityButton(
                           context,
-                          'Средний',
+                          AppLocalizations.of(context)!.mediumPriority,
                           2,
                           selectedPriority,
                           Colors.orange,
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         _buildPriorityButton(
                           context,
-                          'Высокий',
+                          AppLocalizations.of(context)!.highPriority,
                           3,
                           selectedPriority,
                           Colors.red,
@@ -688,6 +688,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       if (result == true) {
                                         setState(() {});
                                       }
+                                    });
+                                  },
+                                  onSetProcrastinationReason: (reason) {
+                                    setState(() {
+                                      taskService.setProcrastinationReason(index, reason);
                                     });
                                   },
                                 ),

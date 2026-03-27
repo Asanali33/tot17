@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
+import 'analytics_screen.dart';
 import '../services/task_service.dart';
 import '../l10n/app_localizations.dart';
 
@@ -33,6 +34,7 @@ class _MainScreenState extends State<MainScreen> {
     return [
       HomeScreen(taskService: taskService),
       StatsScreen(taskService: taskService),
+      AnalyticsScreen(taskService: taskService),
       SettingsScreen(
         onToggleTheme: widget.onToggleTheme,
         isDarkMode: widget.isDarkMode,
@@ -57,6 +59,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: localizations.statistics,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: localizations.productivityAnalytics,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

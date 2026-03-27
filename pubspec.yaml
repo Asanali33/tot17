@@ -44,6 +44,9 @@ dependencies:
   # state management
   provider: ^6.1.2
 
+  # charts library
+  fl_chart: ^0.66.0
+
   # internationalization support
   flutter_localizations:
     sdk: flutter
