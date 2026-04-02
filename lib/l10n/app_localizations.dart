@@ -404,6 +404,150 @@ abstract class AppLocalizations {
   /// **'📝 Add tasks to view statistics'**
   String get addTasksForStats;
 
+  /// No description provided for @searchTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tasks...'**
+  String get searchTasks;
+
+  /// No description provided for @onlyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Only active'**
+  String get onlyActive;
+
+  /// No description provided for @priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priority;
+
+  /// No description provided for @byPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'by priority'**
+  String get byPriority;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @noSorting.
+  ///
+  /// In en, this message translates to:
+  /// **'No sorting'**
+  String get noSorting;
+
+  /// No description provided for @noTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks'**
+  String get noTasks;
+
+  /// No description provided for @productivityAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Productivity Analytics'**
+  String get productivityAnalytics;
+
+  /// No description provided for @completedTasksChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Tasks'**
+  String get completedTasksChart;
+
+  /// No description provided for @procrastinationAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Procrastination Analysis'**
+  String get procrastinationAnalysis;
+
+  /// No description provided for @averageCompletionTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Completion Time'**
+  String get averageCompletionTime;
+
+  /// No description provided for @workloadForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Workload Forecast'**
+  String get workloadForecast;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get noData;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get days;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get hours;
+
+  /// No description provided for @minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get minutes;
+
+  /// No description provided for @seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'seconds'**
+  String get seconds;
+
+  /// No description provided for @procrastinationReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Why didn\'t you complete the task?'**
+  String get procrastinationReasons;
+
+  /// No description provided for @tooTiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Too tiring'**
+  String get tooTiring;
+
+  /// No description provided for @lackOfTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lack of time'**
+  String get lackOfTime;
+
+  /// No description provided for @lackOfMotivation.
+  ///
+  /// In en, this message translates to:
+  /// **'Lack of motivation'**
+  String get lackOfMotivation;
+
+  /// No description provided for @tooComplex.
+  ///
+  /// In en, this message translates to:
+  /// **'Too complex'**
+  String get tooComplex;
+
+  /// No description provided for @forgot.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot'**
+  String get forgot;
+
+  /// No description provided for @otherReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get otherReason;
+
   /// No description provided for @standard.
   ///
   /// In en, this message translates to:
@@ -415,6 +559,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set default deadline (tomorrow)'**
   String get setDefaultDeadline;
+
+  /// No description provided for @lowPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get lowPriority;
+
+  /// No description provided for @mediumPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get mediumPriority;
+
+  /// No description provided for @highPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get highPriority;
+
+  /// No description provided for @experiencePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Experience Points'**
+  String get experiencePoints;
+
+  /// No description provided for @totalExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Experience'**
+  String get totalExperience;
+
+  /// No description provided for @level.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get level;
+
+  /// No description provided for @achievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievements;
+
+  /// No description provided for @firstCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'First Completion'**
+  String get firstCompletion;
+
+  /// No description provided for @master5Tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Master of 5 Tasks'**
+  String get master5Tasks;
+
+  /// No description provided for @hero10Tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Hero of 10 Tasks'**
+  String get hero10Tasks;
+
+  /// No description provided for @legend20Tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend of 20 Tasks'**
+  String get legend20Tasks;
+
+  /// No description provided for @levelUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Level Up!'**
+  String get levelUp;
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Unlocked!'**
+  String get achievementUnlocked;
+
+  /// No description provided for @noAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'No achievements yet'**
+  String get noAchievements;
+
+  /// No description provided for @level2.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 2 Reached!'**
+  String get level2;
+
+  /// No description provided for @level5.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 5 Reached!'**
+  String get level5;
+
+  /// No description provided for @level10.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 10 Reached!'**
+  String get level10;
 }
 
 class _AppLocalizationsDelegate

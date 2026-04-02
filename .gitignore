@@ -1,3 +1,49 @@
+# Android SDK/NDK specific (local development paths)
+android/local.properties
+oracleJdk-25/
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Android
+android/app/build/
+android/build/
+*.apk
+*.aar
+*.so
+
+# iOS
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/build/
+ios/Flutter/.last_build_id
+DerivedData/
+
+# Web
+web/build/
+
+# Windows
+windows/flutter/generated_plugin_registrant.*
+windows/flutter/generated_plugins.cmake
+windows/build/
+
+# Linux
+linux/flutter/generated_plugin_registrant.*
+linux/flutter/generated_plugins.cmake
+linux/build/
+
+# macOS
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/Flutter-Debug.xcconfig
+macos/Flutter/Flutter-Release.xcconfig
+macos/build/
+
 # Miscellaneous
 *.class
 *.log

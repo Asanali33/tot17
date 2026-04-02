@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
   String selectedCategory = 'general';
   bool showOnlyIncomplete = false;
-  String sortByOption = 'по приоритету';
+  String sortByOption = 'priority';
 
   @override
   void initState() {
@@ -300,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Приоритет:',
+                    Text(AppLocalizations.of(context)!.priority,
                         style: Theme.of(context).textTheme.labelMedium),
                     SizedBox(height: 8),
                     Row(
@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         _buildPriorityButton(
                           context,
-                          'Низкий',
+                          AppLocalizations.of(context)!.lowPriority,
                           1,
                           selectedPriority,
                           Colors.blue,
@@ -316,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         _buildPriorityButton(
                           context,
-                          'Средний',
+                          AppLocalizations.of(context)!.mediumPriority,
                           2,
                           selectedPriority,
                           Colors.orange,
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         _buildPriorityButton(
                           context,
-                          'Высокий',
+                          AppLocalizations.of(context)!.highPriority,
                           3,
                           selectedPriority,
                           Colors.red,
@@ -413,7 +413,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
     }
 
-    if (sortByOption == 'по приоритету') {
+    if (sortByOption == 'priority') {
       filtered.sort((a, b) {
         if (a.priority != b.priority) {
           return b.priority.compareTo(a.priority);
@@ -423,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (b.deadline == null) return -1;
         return a.deadline!.compareTo(b.deadline!);
       });
-    } else if (sortByOption == 'по дате') {
+    } else if (sortByOption == 'date') {
       filtered.sort((a, b) {
         if (a.deadline == null && b.deadline == null) return 0;
         if (a.deadline == null) return 1;
@@ -506,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: 'Поиск задач...',
+                    hintText: AppLocalizations.of(context)!.searchTasks,
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -552,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               Expanded(
                                 child: Text(
-                                  'Только активные',
+                                  AppLocalizations.of(context)!.onlyActive,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: showOnlyIncomplete
                                         ? colorScheme.onPrimaryContainer
@@ -571,21 +571,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         initialSelection: sortByOption,
                         onSelected: (String? value) {
                           setState(() {
-                            sortByOption = value ?? 'по приоритету';
+                            sortByOption = value ?? 'priority';
                           });
                         },
                         dropdownMenuEntries: [
                           DropdownMenuEntry(
-                            value: 'по приоритету',
-                            label: 'Приоритет',
+                            value: 'priority',
+                            label: AppLocalizations.of(context)!.priority,
                           ),
                           DropdownMenuEntry(
-                            value: 'по дате',
-                            label: 'Дата',
+                            value: 'date',
+                            label: AppLocalizations.of(context)!.date,
                           ),
                           DropdownMenuEntry(
-                            value: 'без сортировки',
-                            label: 'Нет сортировки',
+                            value: 'none',
+                            label: AppLocalizations.of(context)!.noSorting,
                           ),
                         ],
                         width: 140,
@@ -621,7 +621,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(Icons.check_circle_outline,
                             size: 64, color: colorScheme.outlineVariant),
                         SizedBox(height: 16),
-                        Text('Нет задач',
+                        Text(AppLocalizations.of(context)!.noTasks,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: colorScheme.outlineVariant,
                             )),
@@ -688,6 +688,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       if (result == true) {
                                         setState(() {});
                                       }
+                                    });
+                                  },
+                                  onSetProcrastinationReason: (reason) {
+                                    setState(() {
+                                      taskService.setProcrastinationReason(index, reason);
                                     });
                                   },
                                 ),
