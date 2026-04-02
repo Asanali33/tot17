@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import '../services/task_service.dart';
-import '../models/team_member.dart';
+import 'task_detail_screen.dart';
 
 class CollaborationScreen extends StatefulWidget {
   final TaskService taskService;
@@ -19,6 +17,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
   final TextEditingController _memberRoleController = TextEditingController();
   late PageController _pageController;
   int _currentPage = 0;
+  Role? _selectedRole;
 
   @override
   void initState() {
@@ -36,11 +35,11 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
 
   void _addTeamMember() {
     final name = _memberNameController.text.trim();
-    final role = _memberRoleController.text.trim();
+    final role = _selectedRole;
 
-    if (name.isEmpty || role.isEmpty) {
+    if (name.isEmpty || role == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите имя и роль')),
+        const SnackBar(content: Text('Введите имя и выберите роль')),
       );
       return;
     }
@@ -54,7 +53,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
     setState(() {
       widget.taskService.addTeamMember(member);
       _memberNameController.clear();
-      _memberRoleController.clear();
+      _selectedRole = null;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -138,13 +137,24 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        TextField(
-          controller: _memberRoleController,
+        DropdownButtonFormField<Role>(
+          value: _selectedRole,
           decoration: InputDecoration(
-            hintText: 'Роль (разработчик, тестировщик и т.д.)',
+            hintText: 'Выберите роль',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.work),
           ),
+          items: Role.predefinedRoles.map((role) {
+            return DropdownMenuItem<Role>(
+              value: role,
+              child: Text(role.name),
+            );
+          }).toList(),
+          onChanged: (role) {
+            setState(() {
+              _selectedRole = role;
+            });
+          },
         ),
         const SizedBox(height: 16),
         ElevatedButton(
@@ -172,13 +182,24 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        TextField(
-          controller: _memberRoleController,
+        DropdownButtonFormField<Role>(
+          value: _selectedRole,
           decoration: InputDecoration(
             hintText: 'Роль',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.work),
           ),
+          items: Role.predefinedRoles.map((role) {
+            return DropdownMenuItem<Role>(
+              value: role,
+              child: Text(role.name),
+            );
+          }).toList(),
+          onChanged: (role) {
+            setState(() {
+              _selectedRole = role;
+            });
+          },
         ),
         const SizedBox(height: 12),
         ElevatedButton(
@@ -203,7 +224,16 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                 child: Text(member.name[0].toUpperCase()),
               ),
               title: Text(member.name),
-              subtitle: Text(member.role),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(member.role.name),
+                  Text(
+                    member.role.description,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
@@ -255,6 +285,21 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                               value: task.isDone,
                               onChanged: (_) {},
                             ),
+                            IconButton(
+                              icon: const Icon(Icons.info_outline, size: 20),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TaskDetailScreen(
+                                      task: task,
+                                      taskIndex: widget.taskService.tasks.indexOf(task),
+                                      taskService: widget.taskService,
+                                    ),
+                                  ),
+                                ).then((_) => setState(() {}));
+                              },
+                            ),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,6 +311,35 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                                           ? TextDecoration.lineThrough
                                           : null,
                                     ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(task.status),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          task.status.displayName,
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      if (task.assignedRole != null) ...[
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Роль: ${task.assignedRole}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                   if (task.teamDeadline != null)
                                     Text(
@@ -299,10 +373,48 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
                                   ...task.comments.map((comment) {
-                                    return Text(
-                                      comment,
-                                      style: const TextStyle(fontSize: 11),
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              if (comment.author != null)
+                                                Text(
+                                                  '${comment.author}:',
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              const Spacer(),
+                                              Text(
+                                                '${comment.createdAt.day}.${comment.createdAt.month} ${comment.createdAt.hour}:${comment.createdAt.minute.toString().padLeft(2, '0')}',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              if (comment.isEdited)
+                                                const Text(
+                                                  ' (изменено)',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.orange,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          Text(
+                                            comment.text,
+                                            style: const TextStyle(fontSize: 11),
+                                          ),
+                                        ],
+                                      ),
                                     );
                                   }).toList(),
                                 ],
@@ -319,5 +431,18 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
         }).toList(),
       ],
     );
+  }
+
+  Color _getStatusColor(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.todo:
+        return Colors.grey;
+      case TaskStatus.inProgress:
+        return Colors.blue;
+      case TaskStatus.review:
+        return Colors.orange;
+      case TaskStatus.done:
+        return Colors.green;
+    }
   }
 }

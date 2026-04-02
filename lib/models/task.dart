@@ -6,12 +6,14 @@ class Task {
   String? subcategory;
   DateTime? deadline;
   DateTime? teamDeadline;
-  List<String> comments;
+  List<Comment> comments;
   int priority; // 1 = низкий, 2 = средний, 3 = высокий
   DateTime createdAt;
   DateTime? completedAt;
   String? assignedTo; // кому назначена задача (роль или имя)
   List<TaskChange> changesHistory;
+  TaskStatus status; // новый статус задачи
+  String? assignedRole; // роль, ответственная за задачу
 
   Task({
     required this.title,
@@ -27,7 +29,47 @@ class Task {
     this.completedAt,
     this.assignedTo,
     this.changesHistory = const [],
+    this.status = TaskStatus.todo,
+    this.assignedRole,
   }) : createdAt = createdAt ?? DateTime.now();
+}
+
+enum TaskStatus {
+  todo('К выполнению'),
+  inProgress('В работе'),
+  review('На проверке'),
+  done('Выполнено');
+
+  const TaskStatus(this.displayName);
+  final String displayName;
+}
+
+class Comment {
+  String text;
+  String? author;
+  DateTime createdAt;
+  bool isEdited;
+
+  Comment({
+    required this.text,
+    this.author,
+    DateTime? createdAt,
+    this.isEdited = false,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  Comment copyWith({
+    String? text,
+    String? author,
+    DateTime? createdAt,
+    bool? isEdited,
+  }) {
+    return Comment(
+      text: text ?? this.text,
+      author: author ?? this.author,
+      createdAt: createdAt ?? this.createdAt,
+      isEdited: isEdited ?? this.isEdited,
+    );
+  }
 }
 
 class TaskChange {

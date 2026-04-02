@@ -231,23 +231,52 @@ class TaskTile extends StatelessWidget {
                   ...task.comments.map(
                     (comment) => Padding(
                       padding: EdgeInsets.only(bottom: 4),
-                      child: Row(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.circle,
-                            size: 6,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                          SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              comment,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface,
+                          Row(
+                            children: [
+                              if (comment.author != null)
+                                Text(
+                                  '${comment.author}: ',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              Spacer(),
+                              Text(
+                                '${comment.createdAt.day}.${comment.createdAt.month} ${comment.createdAt.hour}:${comment.createdAt.minute.toString().padLeft(2, '0')}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                size: 6,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  comment.text,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                         ],
                       ),
                     ),

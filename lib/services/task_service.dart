@@ -1,5 +1,6 @@
 import '../models/task.dart';
 import '../models/team_member.dart';
+import '../models/role.dart';
 import '../models/productivity_stats.dart';
 
 class TaskService {
@@ -45,6 +46,7 @@ class TaskService {
     DateTime? deadline,
     DateTime? teamDeadline,
     String? assignedTo,
+    String? assignedRole,
   }) {
     final task = Task(
       title: title,
@@ -53,6 +55,7 @@ class TaskService {
       deadline: deadline,
       teamDeadline: teamDeadline,
       assignedTo: assignedTo,
+      assignedRole: assignedRole,
       comments: [],
     );
     tasks.add(task);
@@ -77,6 +80,7 @@ class TaskService {
     final task = tasks[index];
     final nowDone = !task.isDone;
     task.isDone = nowDone;
+    task.status = nowDone ? TaskStatus.done : TaskStatus.todo;
     
     final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     if (!productivityStats.dailyStats.containsKey(today)) {
@@ -112,7 +116,7 @@ class TaskService {
         final completionTimes = productivityStats.dailyStats[today]?.completionTimes ?? [];
         productivityStats.dailyStats[today]?.completionTimes = [...completionTimes, DateTime.now()];
         
-        _recordChange(index, 'Статус', 'В процессе', 'Выполнено');
+        _recordChange(index, 'Статус', task.status.displayName, TaskStatus.done.displayName);
         _updateAchievements();
       }
     } else {
@@ -126,7 +130,7 @@ class TaskService {
         productivityStats.dailyStats[today]?.tasksCompleted = 
             (productivityStats.dailyStats[today]?.tasksCompleted ?? 0) - 1;
         
-        _recordChange(index, 'Статус', 'Выполнено', 'В процессе');
+        _recordChange(index, 'Статус', TaskStatus.done.displayName, TaskStatus.todo.displayName);
         _updateAchievements();
       }
     }
@@ -134,7 +138,11 @@ class TaskService {
 
   void addComment(int index, String comment) {
     if (comment.trim().isEmpty) return;
-    tasks[index].comments.add(comment.trim());
+    final newComment = Comment(
+      text: comment.trim(),
+      author: currentUserName,
+    );
+    tasks[index].comments.add(newComment);
   }
 
   int get level => 1 + (experience ~/ 100);
@@ -156,7 +164,7 @@ class TaskService {
     String category,
     String? subcategory,
     DateTime? deadline,
-    {DateTime? teamDeadline, String? assignedTo}
+    {DateTime? teamDeadline, String? assignedTo, String? assignedRole}
   ) {
     final task = tasks[index];
     _recordChange(index, 'Название', task.title, title);
@@ -173,6 +181,9 @@ class TaskService {
     if (task.assignedTo != assignedTo) {
       _recordChange(index, 'Назначено', task.assignedTo ?? '', assignedTo ?? '');
     }
+    if (task.assignedRole != assignedRole) {
+      _recordChange(index, 'Роль исполнителя', task.assignedRole ?? '', assignedRole ?? '');
+    }
     
     task.title = title;
     task.category = category;
@@ -180,6 +191,7 @@ class TaskService {
     task.deadline = deadline;
     task.teamDeadline = teamDeadline;
     task.assignedTo = assignedTo;
+    task.assignedRole = assignedRole;
   }
 
   void updateTaskPriority(int index, int priority) {
@@ -273,16 +285,57 @@ class TaskService {
     tasks[taskIndex].assignedTo = member.name;
   }
 
-  void addCommentWithAttribution(int taskIndex, String comment, {String? author}) {
+  void updateTaskStatus(int taskIndex, TaskStatus newStatus) {
     if (taskIndex < 0 || taskIndex >= tasks.length) return;
-    if (comment.trim().isEmpty) return;
-    
-    final attributedComment = author != null && author.isNotEmpty
-        ? '[$author]: ${comment.trim()}'
-        : comment.trim();
-    
-    tasks[taskIndex].comments.add(attributedComment);
-    _recordChange(taskIndex, 'Комментарий', '', attributedComment);
+    final oldStatus = tasks[taskIndex].status;
+    tasks[taskIndex].status = newStatus;
+    tasks[taskIndex].isDone = newStatus == TaskStatus.done;
+    _recordChange(taskIndex, 'Статус', oldStatus.displayName, newStatus.displayName);
+  }
+
+  void assignTaskToRole(int taskIndex, String roleName) {
+    if (taskIndex < 0 || taskIndex >= tasks.length) return;
+    final oldRole = tasks[taskIndex].assignedRole;
+    tasks[taskIndex].assignedRole = roleName;
+    _recordChange(taskIndex, 'Роль исполнителя', oldRole ?? 'Не назначена', roleName);
+  }
+
+  List<Task> getTasksByRole(String roleName) {
+    return tasks.where((task) => task.assignedRole == roleName).toList();
+  }
+
+  List<Task> getTasksByStatus(TaskStatus status) {
+    return tasks.where((task) => task.status == status).toList();
+  }
+
+  Map<TaskStatus, int> getTaskStatusCounts() {
+    final counts = <TaskStatus, int>{};
+    for (final status in TaskStatus.values) {
+      counts[status] = tasks.where((task) => task.status == status).length;
+    }
+    return counts;
+  }
+
+  List<String> getAvailableRoles() {
+    return teamMembers.map((member) => member.role.name).toSet().toList();
+  }
+
+  // Уведомления о дедлайнах
+  List<Task> getUpcomingDeadlines({int daysAhead = 3}) {
+    final now = DateTime.now();
+    final futureDate = now.add(Duration(days: daysAhead));
+    return tasks.where((task) {
+      if (task.teamDeadline == null || task.isDone) return false;
+      return task.teamDeadline!.isAfter(now) && task.teamDeadline!.isBefore(futureDate);
+    }).toList();
+  }
+
+  List<Task> getOverdueTasks() {
+    final now = DateTime.now();
+    return tasks.where((task) {
+      if (task.teamDeadline == null || task.isDone) return false;
+      return task.teamDeadline!.isBefore(now);
+    }).toList();
   }
 
   List<String> getTaskComments(int taskIndex) {
