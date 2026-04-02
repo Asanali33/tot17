@@ -112,11 +112,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               if (controller.text.trim().isEmpty) return;
               setState(() {
-                // Используем новый метод с атрибуцией автора
-                taskService.addCommentWithAttribution(
+                taskService.addComment(
                   index,
                   controller.text.trim(),
-                  author: taskService.currentUserName ?? 'Я',
                 );
               });
               Navigator.pop(context);

@@ -1,3 +1,8 @@
+import 'package:flutter/material.dart';
+import '../services/task_service.dart';
+import '../models/team_member.dart';
+import '../models/role.dart';
+import '../models/task.dart';
 import 'task_detail_screen.dart';
 
 class CollaborationScreen extends StatefulWidget {

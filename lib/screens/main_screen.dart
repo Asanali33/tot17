@@ -4,6 +4,7 @@ import 'stats_screen.dart';
 import 'settings_screen.dart';
 import 'collaboration_screen.dart';
 import 'productivity_analytics_screen.dart';
+import 'ai_assistant_screen.dart';
 import '../services/task_service.dart';
 import '../l10n/app_localizations.dart';
 
@@ -37,6 +38,7 @@ class _MainScreenState extends State<MainScreen> {
       StatsScreen(taskService: taskService),
       CollaborationScreen(taskService: taskService),
       ProductivityAnalyticsScreen(taskService: taskService),
+      AIAssistantScreen(taskService: taskService),
       SettingsScreen(
         onToggleTheme: widget.onToggleTheme,
         isDarkMode: widget.isDarkMode,
@@ -69,6 +71,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.trending_up),
             label: 'Аналитика',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.smart_toy),
+            label: 'AI Помощник',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
