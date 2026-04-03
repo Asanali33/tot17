@@ -5,7 +5,6 @@ import '../models/task.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
 import 'edit_task_screen.dart';
-import 'task_editor_screen.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -86,7 +85,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
+  void _editTask(int index) {
+    Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditTaskScreen(
+          taskService: taskService,
+          taskIndex: index,
+        ),
+      ),
+    ).then((result) {
+      if (result == true) {
+        setState(() {});
+      }
+    });
+  }
 
   void addTask() {
     if (controller.text.isEmpty) return;
@@ -211,8 +224,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
   double getProgress() {
     if (taskService.tasks.isEmpty) return 0;
     int completed = taskService.tasks.where((t) => t.isDone).length;
@@ -275,26 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return Scaffold(
-  appBar: AppBar(
-    title: Text("TaskFlow"),
-    centerTitle: true,
-    actions: [
-      IconButton(
-        icon: Icon(Icons.edit_note),
-        tooltip: 'Редактировать задачи',
-        onPressed: () {
-          Navigator.push<bool>(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TaskEditorScreen(taskService: taskService),
-            ),
-          ).then((result) {
-            if (result == true) setState(() {});
-          });
-        },
-      ),
-    ],
-  ),
+      appBar: AppBar(title: Text("TaskFlow"), centerTitle: true),
       body: Column(
         children: [
           Padding(
@@ -506,13 +498,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Stack(
                               children: [
-                                  TaskTile(
+                                TaskTile(
                                   task: task,
                                   onTap: () {
                                     setState(() {
                                       taskService.toggleTask(index);
                                     });
                                   },
+                                  onEditTitle: () => _editTask(index),
                                   onDelete: () {
                                     setState(() {
                                       taskService.deleteTask(index);

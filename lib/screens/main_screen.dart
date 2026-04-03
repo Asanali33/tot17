@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'task_editor_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import 'analytics_screen.dart';
@@ -34,7 +33,6 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> _buildScreens() {
     return [
       HomeScreen(taskService: taskService),
-      TaskEditorScreen(taskService: taskService),
       StatsScreen(taskService: taskService),
       AnalyticsScreen(taskService: taskService),
       SettingsScreen(
@@ -59,10 +57,6 @@ class _MainScreenState extends State<MainScreen> {
             label: localizations.tasks,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.edit),
-            label: 'Редактирование',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: localizations.statistics,
           ),
@@ -76,7 +70,6 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        //selectedItemColor: Colors.indigo,
         onTap: _onItemTapped,
       ),
     );
