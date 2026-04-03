@@ -263,35 +263,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _buildPriorityButton(
-    BuildContext context,
-    String label,
-    int priority,
-    int selectedPriority,
-    Color color,
-    Function(int) onTap,
-  ) {
-    final isSelected = selectedPriority == priority;
-    return GestureDetector(
-      onTap: () => onTap(priority),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? color : Colors.transparent,
-          border: Border.all(color: color, width: 2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : color,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
   double getProgress() {
     if (taskService.tasks.isEmpty) return 0;
     int completed = taskService.tasks.where((t) => t.isDone).length;
