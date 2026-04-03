@@ -95,7 +95,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: Theme.of(context).cardColor,
             child: ListTile(
               title: Text(localizations.language),
-              subtitle: Text(localeProvider.locale.languageCode == 'ru' ? localizations.russian : localizations.english),
+              subtitle: Text(
+                localeProvider.locale.languageCode == 'ru'
+                    ? localizations.russian
+                    : localizations.english,
+              ),
               trailing: Icon(Icons.language),
               onTap: () {
                 showDialog(
@@ -105,31 +109,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ListTile(
+                        RadioListTile<String>(
                           title: Text(localizations.russian),
-                          leading: Radio<String>(
-                            value: 'ru',
-                            groupValue: localeProvider.locale.languageCode,
-                            onChanged: (value) {
-                              if (value != null) {
-                                localeProvider.setLocale(Locale(value));
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
+                          value: 'ru',
+                          groupValue: localeProvider.locale.languageCode,
+                          onChanged: (value) {
+                            if (value != null) {
+                              localeProvider.setLocale(Locale(value));
+                              Navigator.pop(context);
+                            }
+                          },
                         ),
-                        ListTile(
+                        RadioListTile<String>(
                           title: Text(localizations.english),
-                          leading: Radio<String>(
-                            value: 'en',
-                            groupValue: localeProvider.locale.languageCode,
-                            onChanged: (value) {
-                              if (value != null) {
-                                localeProvider.setLocale(Locale(value));
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
+                          value: 'en',
+                          groupValue: localeProvider.locale.languageCode,
+                          onChanged: (value) {
+                            if (value != null) {
+                              localeProvider.setLocale(Locale(value));
+                              Navigator.pop(context);
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -171,9 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text(localizations.confirm),
-                    content: Text(
-                      localizations.sureClearTasks,
-                    ),
+                    content: Text(localizations.sureClearTasks),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -184,7 +182,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           widget.taskService.clearAllTasks();
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(localizations.allTasksCleared)),
+                            SnackBar(
+                              content: Text(localizations.allTasksCleared),
+                            ),
                           );
                         },
                         child: Text(localizations.clear),

@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final parentContext = context;
 
     showDialog(
-      context: context,
+      context: parentContext,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(localizations.selectCategory),
@@ -143,66 +143,77 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pop(dialogContext);
 
                   DateTime? deadline;
+                  // ignore: use_build_context_synchronously
                   final pickedDate = await showDatePicker(
                     context: parentContext,
-                    initialDate: DateTime.now().add(Duration(days: 1)),
+                    initialDate: DateTime.now().add(const Duration(days: 1)),
                     firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
                   );
+                  if (!mounted) return;
 
                   if (pickedDate == null) {
+                    // ignore: use_build_context_synchronously
                     final addWithoutDeadline = await showDialog<bool>(
                       context: parentContext,
-                      builder: (context) {
+                      builder: (innerContext) {
                         return AlertDialog(
                           title: Text(localizations.deadline),
-                          content: Text(
+                          content: const Text(
                             'Дедлайн не выбран. Добавить задачу без дедлайна?',
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context, false),
+                              onPressed: () =>
+                                  Navigator.pop(innerContext, false),
                               child: Text(localizations.cancel),
                             ),
                             TextButton(
-                              onPressed: () => Navigator.pop(context, true),
+                              onPressed: () =>
+                                  Navigator.pop(innerContext, true),
                               child: Text(localizations.save),
                             ),
                           ],
                         );
                       },
                     );
+                    if (!mounted) return;
 
                     if (addWithoutDeadline != true) return;
                   } else {
                     final pickedTime = await showTimePicker(
                       context: parentContext,
-                      initialTime: TimeOfDay(hour: 23, minute: 59),
+                      initialTime: const TimeOfDay(hour: 23, minute: 59),
                       helpText: 'Выберите время дедлайна',
                     );
+                    if (!mounted) return;
 
                     if (pickedTime == null) {
+                      // ignore: use_build_context_synchronously
                       final addWithoutDeadline = await showDialog<bool>(
                         context: parentContext,
-                        builder: (context) {
+                        builder: (innerContext) {
                           return AlertDialog(
                             title: Text(localizations.deadline),
-                            content: Text(
+                            content: const Text(
                               'Время не выбрано. Добавить задачу без дедлайна?',
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context, false),
+                                onPressed: () =>
+                                    Navigator.pop(innerContext, false),
                                 child: Text(localizations.cancel),
                               ),
                               TextButton(
-                                onPressed: () => Navigator.pop(context, true),
+                                onPressed: () =>
+                                    Navigator.pop(innerContext, true),
                                 child: Text(localizations.save),
                               ),
                             ],
                           );
                         },
                       );
+                      if (!mounted) return;
 
                       if (addWithoutDeadline != true) return;
                     } else {
@@ -216,6 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   }
 
+                  if (!mounted) return;
                   setState(() {
                     selectedCategory = categoryKey;
                     taskService.addTask(
@@ -283,12 +295,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       : Text('Не установлено'),
                   onTap: () async {
+                    // ignore: use_build_context_synchronously
                     final picked = await showDatePicker(
                       context: context,
                       initialDate: selectedDeadline ?? DateTime.now(),
                       firstDate: DateTime.now(),
                       lastDate: DateTime.now().add(Duration(days: 365)),
                     );
+                    if (!mounted) return;
                     if (picked != null) {
                       setState(() {
                         selectedDeadline = picked;
@@ -300,8 +314,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.priority,
-                        style: Theme.of(context).textTheme.labelMedium),
+                    Text(
+                      AppLocalizations.of(context)!.priority,
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
                     SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -511,8 +527,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
                 SizedBox(height: 8),
@@ -605,7 +623,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 8),
                 Text(
                   '${(getProgress() * 100).toStringAsFixed(0)}% ${localizations.completed}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 14),
                 ),
                 SizedBox(height: 12),
               ],
@@ -618,13 +638,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.check_circle_outline,
-                            size: 64, color: colorScheme.outlineVariant),
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 64,
+                          color: colorScheme.outlineVariant,
+                        ),
                         SizedBox(height: 16),
-                        Text(AppLocalizations.of(context)!.noTasks,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.outlineVariant,
-                            )),
+                        Text(
+                          AppLocalizations.of(context)!.noTasks,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.outlineVariant,
+                          ),
+                        ),
                       ],
                     ),
                   )
@@ -672,17 +697,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       taskService.deleteTask(index);
                                     });
                                   },
-                                  onAddComment: () =>
-                                      addCommentToTask(index),
+                                  onAddComment: () => addCommentToTask(index),
                                   onEditCategory: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             SubcategoriesScreen(
-                                          taskService: taskService,
-                                          taskIndex: index,
-                                        ),
+                                              taskService: taskService,
+                                              taskIndex: index,
+                                            ),
                                       ),
                                     ).then((result) {
                                       if (result == true) {
@@ -692,7 +716,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   onSetProcrastinationReason: (reason) {
                                     setState(() {
-                                      taskService.setProcrastinationReason(index, reason);
+                                      taskService.setProcrastinationReason(
+                                        index,
+                                        reason,
+                                      );
                                     });
                                   },
                                 ),

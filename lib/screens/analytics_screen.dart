@@ -18,7 +18,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,13 +31,29 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                _buildTabButton(0, localizations.completedTasksChart, Icons.check_circle),
+                _buildTabButton(
+                  0,
+                  localizations.completedTasksChart,
+                  Icons.check_circle,
+                ),
                 const SizedBox(width: 8),
-                _buildTabButton(1, localizations.procrastinationAnalysis, Icons.access_time),
+                _buildTabButton(
+                  1,
+                  localizations.procrastinationAnalysis,
+                  Icons.access_time,
+                ),
                 const SizedBox(width: 8),
-                _buildTabButton(2, localizations.averageCompletionTime, Icons.timer),
+                _buildTabButton(
+                  2,
+                  localizations.averageCompletionTime,
+                  Icons.timer,
+                ),
                 const SizedBox(width: 8),
-                _buildTabButton(3, localizations.workloadForecast, Icons.calendar_view_week),
+                _buildTabButton(
+                  3,
+                  localizations.workloadForecast,
+                  Icons.calendar_view_week,
+                ),
               ],
             ),
           ),
@@ -64,12 +79,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         icon: Icon(icon, size: 18),
         label: Text(title, textAlign: TextAlign.center),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
-          foregroundColor: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+          backgroundColor: isSelected
+              ? colorScheme.primaryContainer
+              : colorScheme.surface,
+          foregroundColor: isSelected
+              ? colorScheme.onPrimaryContainer
+              : colorScheme.onSurface,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -99,7 +116,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }
 
     final spots = data.entries.map((entry) {
-      final daysSinceStart = entry.key.difference(DateTime.now().subtract(const Duration(days: 30))).inDays;
+      final daysSinceStart = entry.key
+          .difference(DateTime.now().subtract(const Duration(days: 30)))
+          .inDays;
       return FlSpot(daysSinceStart.toDouble(), entry.value.toDouble());
     }).toList();
 
@@ -111,14 +130,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                final date = DateTime.now().subtract(const Duration(days: 30)).add(Duration(days: value.toInt()));
+                final date = DateTime.now()
+                    .subtract(const Duration(days: 30))
+                    .add(Duration(days: value.toInt()));
                 return Text('${date.day}/${date.month}');
               },
             ),
           ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true),
-          ),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
         ),
         borderData: FlBorderData(show: true),
         lineBarsData: [
@@ -129,7 +148,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             barWidth: 3,
             belowBarData: BarAreaData(
               show: true,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.3),
             ),
           ),
         ],
@@ -154,7 +175,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         Colors.blue,
         Colors.purple,
       ];
-      final color = colors[data.keys.toList().indexOf(entry.key) % colors.length];
+      final color =
+          colors[data.keys.toList().indexOf(entry.key) % colors.length];
 
       return PieChartSectionData(
         value: entry.value.toDouble(),
@@ -170,11 +192,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }).toList();
 
     return PieChart(
-      PieChartData(
-        sections: sections,
-        sectionsSpace: 2,
-        centerSpaceRadius: 40,
-      ),
+      PieChartData(sections: sections, sectionsSpace: 2, centerSpaceRadius: 40),
     );
   }
 
@@ -246,9 +264,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               },
             ),
           ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true),
-          ),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
         ),
         borderData: FlBorderData(show: true),
       ),
