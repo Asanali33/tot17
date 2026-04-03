@@ -144,7 +144,7 @@ class TaskTile extends StatelessWidget {
                       ),
                     ],
                     Spacer(),
-                    GestureDetector(
+                    if (onAddComment != null) GestureDetector(
                       onTap: onAddComment,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -165,7 +165,7 @@ class TaskTile extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 12),
-                    GestureDetector(
+                    if (onEditCategory != null) GestureDetector(
                       onTap: onEditCategory,
                       child: Icon(
                         Icons.edit,

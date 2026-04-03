@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 import '../services/task_service.dart';
+import 'subcategories_screen.dart';
 import '../l10n/app_localizations.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -41,6 +42,52 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.dispose();
   }
 
+  String getLocalizedCategory(String key) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'work':
+        return localizations.work;
+      case 'personal':
+        return localizations.personal;
+      case 'shopping':
+        return localizations.shopping;
+      case 'general':
+        return localizations.general;
+      default:
+        return key;
+    }
+  }
+
+  String getLocalizedSubcategory(String key) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'projects':
+        return localizations.projects;
+      case 'meetings':
+        return localizations.meetings;
+      case 'reports':
+        return localizations.reports;
+      case 'sport':
+        return localizations.sport;
+      case 'reading':
+        return localizations.reading;
+      case 'hobby':
+        return localizations.hobby;
+      case 'food':
+        return localizations.food;
+      case 'clothes':
+        return localizations.clothes;
+      case 'home':
+        return localizations.home;
+      case 'standard':
+        return localizations.standard;
+      case 'other':
+        return localizations.other;
+      default:
+        return key;
+    }
+  }
+
   Future<void> _pickDeadline() async {
     final localizations = AppLocalizations.of(context)!;
 
@@ -77,24 +124,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     final newTitle = titleController.text.trim();
     if (newTitle.isEmpty) return;
 
-    widget.taskService.updateTask(
-      widget.taskIndex,
-      newTitle,
-      task.category,
-      task.subcategory,
-      selectedDeadline,
-    );
-
-    widget.taskService.updateTaskPriority(widget.taskIndex, selectedPriority);
+    widget.taskService.tasks[widget.taskIndex].title = newTitle;
+    widget.taskService.tasks[widget.taskIndex].deadline = selectedDeadline;
+    widget.taskService.tasks[widget.taskIndex].priority = selectedPriority;
 
     final newComments = commentsControllers
         .map((c) => c.text.trim())
         .where((text) => text.isNotEmpty)
         .toList();
 
-    task.comments
-      ..clear()
-      ..addAll(newComments);
+    widget.taskService.tasks[widget.taskIndex].comments.clear();
+    widget.taskService.tasks[widget.taskIndex].comments.addAll(newComments);
 
     Navigator.of(context).pop(true);
   }
@@ -190,6 +230,46 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 _priorityChip(localizations.lowPriority, 1, Colors.blue),
                 _priorityChip(localizations.mediumPriority, 2, Colors.orange),
                 _priorityChip(localizations.highPriority, 3, Colors.red),
+              ],
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: Icon(Icons.save),
+                label: Text('Сохранить изменения'),
+                onPressed: _saveTask,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(AppLocalizations.of(context)!.selectCategory, style: Theme.of(context).textTheme.titleMedium),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.category),
+                  label: Text(
+                    getLocalizedCategory(task.category) +
+                    (task.subcategory != null ? ' / ${getLocalizedSubcategory(task.subcategory!)}' : ''),
+                  ),
+                  onPressed: () {
+                    Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SubcategoriesScreen(
+                          taskService: widget.taskService,
+                          taskIndex: widget.taskIndex,
+                        ),
+                      ),
+                    ).then((result) {
+                      if (result == true && mounted) {
+                        setState(() {
+                          task = widget.taskService.tasks[widget.taskIndex];
+                        });
+                      }
+                    });
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 16),

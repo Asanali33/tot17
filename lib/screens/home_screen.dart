@@ -5,6 +5,7 @@ import '../models/task.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
 import 'edit_task_screen.dart';
+import 'task_editor_screen.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -85,44 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void addCommentToTask(int index) {
-    final controller = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Добавить комментарий'),
-        content: TextField(
-          controller: controller,
-          minLines: 1,
-          maxLines: 5,
-          autofocus: true,
-          keyboardType: TextInputType.multiline,
-          textCapitalization: TextCapitalization.sentences,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[\s\S]')),
-          ],
-          decoration: InputDecoration(hintText: 'Введите текст комментария'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.trim().isEmpty) return;
-              setState(() {
-                taskService.addComment(index, controller.text.trim());
-              });
-              Navigator.pop(context);
-            },
-            child: Text('Сохранить'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void addTask() {
     if (controller.text.isEmpty) return;
@@ -247,21 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void editTaskTitle(int index) {
-    Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditTaskScreen(
-          taskService: taskService,
-          taskIndex: index,
-        ),
-      ),
-    ).then((result) {
-      if (result == true) {
-        setState(() {});
-      }
-    });
-  }
+
 
   double getProgress() {
     if (taskService.tasks.isEmpty) return 0;
@@ -325,7 +275,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text("TaskFlow"), centerTitle: true),
+  appBar: AppBar(
+    title: Text("TaskFlow"),
+    centerTitle: true,
+    actions: [
+      IconButton(
+        icon: Icon(Icons.edit_note),
+        tooltip: 'Редактировать задачи',
+        onPressed: () {
+          Navigator.push<bool>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TaskEditorScreen(taskService: taskService),
+            ),
+          ).then((result) {
+            if (result == true) setState(() {});
+          });
+        },
+      ),
+    ],
+  ),
       body: Column(
         children: [
           Padding(
@@ -537,34 +506,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Stack(
                               children: [
-                                TaskTile(
+                                  TaskTile(
                                   task: task,
                                   onTap: () {
                                     setState(() {
                                       taskService.toggleTask(index);
                                     });
                                   },
-                                  onEditTitle: () => editTaskTitle(index),
                                   onDelete: () {
                                     setState(() {
                                       taskService.deleteTask(index);
-                                    });
-                                  },
-                                  onAddComment: () => addCommentToTask(index),
-                                  onEditCategory: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            SubcategoriesScreen(
-                                              taskService: taskService,
-                                              taskIndex: index,
-                                            ),
-                                      ),
-                                    ).then((result) {
-                                      if (result == true) {
-                                        setState(() {});
-                                      }
                                     });
                                   },
                                   onSetProcrastinationReason: (reason) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/task_service.dart';
 import '../widgets/task_tile.dart';
 import 'edit_task_screen.dart';
+import 'subcategories_screen.dart';
 import '../l10n/app_localizations.dart';
 
 class TaskEditorScreen extends StatefulWidget {
@@ -62,10 +63,21 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
               }
             });
           },
-          onEditCategory: () {},
+          onEditCategory: () {
+            Navigator.push<bool>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SubcategoriesScreen(
+                  taskService: widget.taskService,
+                  taskIndex: index,
+                ),
+              ),
+            ).then((result) {
+              if (result == true) setState(() {});
+            });
+          },
           onAddComment: () {
-            // Для быстроты перенаправляем на экран редактирования,
-            // чтобы пользователь мог править комментарии.
+            // Redirect to full editor for comments.
             Navigator.push<bool>(
               context,
               MaterialPageRoute(

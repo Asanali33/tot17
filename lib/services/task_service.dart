@@ -96,6 +96,11 @@ class TaskService {
     }
   }
 
+  void updateTaskComments(int index, List<String> comments) {
+    tasks[index].comments.clear();
+    tasks[index].comments.addAll(comments.where((c) => c.trim().isNotEmpty));
+  }
+
   void clearAllTasks() {
     tasks.clear();
   }
