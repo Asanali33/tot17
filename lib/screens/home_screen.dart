@@ -4,6 +4,7 @@ import '../services/task_service.dart';
 import '../models/task.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
+import 'edit_task_screen.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -247,138 +248,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void editTaskTitle(int index) {
-    final task = taskService.tasks[index];
-    final controller = TextEditingController(text: task.title);
-    DateTime? selectedDeadline = task.deadline;
-    int selectedPriority = task.priority;
-
-    final localizations = AppLocalizations.of(context)!;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: Text(localizations.editTask),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: controller,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: localizations.newTaskTitle,
-                    hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withAlpha(0x40),
-                      ),
-                    ),
-                  ),
-                  autofocus: true,
-                ),
-                SizedBox(height: 16),
-                ListTile(
-                  title: Text(localizations.deadline),
-                  subtitle: selectedDeadline != null
-                      ? Text(
-                          selectedDeadline!.toLocal().toString().split(' ')[0],
-                        )
-                      : Text('Не установлено'),
-                  onTap: () async {
-                    // ignore: use_build_context_synchronously
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDeadline ?? DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
-                    );
-                    if (!mounted) return;
-                    if (picked != null) {
-                      setState(() {
-                        selectedDeadline = picked;
-                      });
-                    }
-                  },
-                ),
-                SizedBox(height: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.priority,
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildPriorityButton(
-                          context,
-                          AppLocalizations.of(context)!.lowPriority,
-                          1,
-                          selectedPriority,
-                          Colors.blue,
-                          (val) => setState(() => selectedPriority = val),
-                        ),
-                        _buildPriorityButton(
-                          context,
-                          AppLocalizations.of(context)!.mediumPriority,
-                          2,
-                          selectedPriority,
-                          Colors.orange,
-                          (val) => setState(() => selectedPriority = val),
-                        ),
-                        _buildPriorityButton(
-                          context,
-                          AppLocalizations.of(context)!.highPriority,
-                          3,
-                          selectedPriority,
-                          Colors.red,
-                          (val) => setState(() => selectedPriority = val),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(localizations.cancel),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (controller.text.trim().isEmpty) return;
-                  setState(() {
-                    taskService.updateTask(
-                      index,
-                      controller.text.trim(),
-                      task.category,
-                      task.subcategory,
-                      selectedDeadline,
-                    );
-                    taskService.updateTaskPriority(index, selectedPriority);
-                  });
-                  Navigator.pop(context);
-                },
-                child: Text(localizations.save),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditTaskScreen(
+          taskService: taskService,
+          taskIndex: index,
+        ),
+      ),
+    ).then((result) {
+      if (result == true) {
+        setState(() {});
+      }
+    });
   }
 
   Widget _buildPriorityButton(
