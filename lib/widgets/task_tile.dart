@@ -196,6 +196,40 @@ class TaskTile extends StatelessWidget {
                     ],
                   ),
                 ],
+                if (task.estimatedDuration != null) ...[
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.timer,
+                        size: 16,
+                        color: colorScheme.tertiary,
+                      ),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Время выполнения: ${_formatDuration(task.estimatedDuration!)}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            if (task.isTimerActive && task.timerStartedAt != null)
+                              Text(
+                                'Таймер: ${_getRemainingTime(task)}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.tertiary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (task.assignedTo != null) ...[
                   SizedBox(height: 8),
                   Row(
@@ -276,11 +310,7 @@ class TaskTile extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  ).toList(),
                 ],
               ],
             ),
@@ -288,5 +318,44 @@ class TaskTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    if (hours > 0) {
+      return '${hours}ч ${minutes}м ${seconds}с';
+    } else if (minutes > 0) {
+      return '${minutes}м ${seconds}с';
+    } else {
+      return '${seconds}с';
+    }
+  }
+
+  String _getRemainingTime(Task task) {
+    if (task.timerStartedAt == null || task.estimatedDuration == null) {
+      return 'Не установлено';
+    }
+
+    final elapsed = DateTime.now().difference(task.timerStartedAt!);
+    final remaining = task.estimatedDuration!.inSeconds - elapsed.inSeconds;
+
+    if (remaining <= 0) {
+      return '⏰ Время истекло!';
+    }
+
+    final hours = remaining ~/ 3600;
+    final minutes = (remaining % 3600) ~/ 60;
+    final seconds = remaining % 60;
+
+    if (hours > 0) {
+      return '${hours}ч ${minutes}м ${seconds}с';
+    } else if (minutes > 0) {
+      return '${minutes}м ${seconds}с';
+    } else {
+      return '${seconds}с';
+    }
   }
 }

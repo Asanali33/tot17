@@ -219,12 +219,139 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   }
 
+                  // Диалог для установки времени выполнения
+                  Duration? estimatedDuration;
+                  final pickedDuration = await showDialog<Duration?>(
+                    context: parentContext,
+                    builder: (context) {
+                      int hours = 0;
+                      int minutes = 0;
+                      int seconds = 0;
+
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                            title: const Text('Установить время выполнения'),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            const Text('Часы', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            TextField(
+                                              keyboardType: TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              controller: TextEditingController(text: hours.toString()),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  hours = int.tryParse(value) ?? 0;
+                                                });
+                                              },
+                                              decoration: const InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                contentPadding: EdgeInsets.symmetric(vertical: 8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            const Text('Минуты', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            TextField(
+                                              keyboardType: TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              controller: TextEditingController(text: minutes.toString()),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  minutes = int.tryParse(value) ?? 0;
+                                                });
+                                              },
+                                              decoration: const InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                contentPadding: EdgeInsets.symmetric(vertical: 8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            const Text('Секунды', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            TextField(
+                                              keyboardType: TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              controller: TextEditingController(text: seconds.toString()),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  seconds = int.tryParse(value) ?? 0;
+                                                });
+                                              },
+                                              decoration: const InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                contentPadding: EdgeInsets.symmetric(vertical: 8),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Итого: ${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Пропустить'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  if (hours > 0 || minutes > 0 || seconds > 0) {
+                                    estimatedDuration = Duration(
+                                      hours: hours,
+                                      minutes: minutes,
+                                      seconds: seconds,
+                                    );
+                                    Navigator.pop(context, estimatedDuration);
+                                  } else {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: const Text('Установить'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
+
+                  if (pickedDuration != null) {
+                    estimatedDuration = pickedDuration;
+                  }
+
                   setState(() {
                     selectedCategory = categoryKey;
                     taskService.addTask(
                       controller.text.trim(),
                       category: categoryKey,
                       deadline: deadline,
+                      estimatedDuration: estimatedDuration,
                     );
                     controller.clear();
                   });

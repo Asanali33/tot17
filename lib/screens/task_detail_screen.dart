@@ -20,11 +20,13 @@ class TaskDetailScreen extends StatefulWidget {
   State<TaskDetailScreen> createState() => _TaskDetailScreenState();
 }
 
-class _TaskDetailScreenState extends State<TaskDetailScreen> {
+class _TaskDetailScreenState extends State<TaskDetailScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _commentController = TextEditingController();
   late TaskStatus _selectedStatus;
   String? _selectedAssignee;
   String? _selectedRole;
+  late AnimationController _timerUpdateController;
 
   @override
   void initState() {
@@ -32,11 +34,18 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     _selectedStatus = widget.task.status;
     _selectedAssignee = widget.task.assignedTo;
     _selectedRole = widget.task.assignedRole;
+
+    // Таймер для обновления UI каждую секунду
+    _timerUpdateController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    )..repeat();
   }
 
   @override
   void dispose() {
     _commentController.dispose();
+    _timerUpdateController.dispose();
     super.dispose();
   }
 
@@ -116,7 +125,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       child: Text(status.displayName),
                     );
                   }).toList(),
-                  onChanged: _updateStatus,
+                  onChanged: (value) {
+                    if (value != null) _updateStatus(value);
+                  },
                 ),
               ],
             ),
@@ -196,6 +207,120 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             Text('Категория: ${task.category}'),
             if (task.subcategory != null) Text('Подкатегория: ${task.subcategory}'),
             const SizedBox(height: 24),
+
+            // Таймер
+            if (task.estimatedDuration != null) ...[
+              const Text(
+                'Таймер',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      AnimatedBuilder(
+                        animation: _timerUpdateController,
+                        builder: (context, child) {
+                          final remaining = widget.taskService
+                              .getRemainingTime(widget.taskIndex);
+                          final progress = widget.taskService
+                              .getTimerProgress(widget.taskIndex);
+                          final isExpired = widget.taskService
+                              .isTimeExpired(widget.taskIndex);
+
+                          return Column(
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 200,
+                                    height: 200,
+                                    child: CircularProgressIndicator(
+                                      value: progress,
+                                      strokeWidth: 8,
+                                      backgroundColor: Colors.grey[300],
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        isExpired ? Colors.red : Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        _formatDuration(remaining ?? Duration.zero),
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: isExpired ? Colors.red : Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        task.isTimerActive ? 'Таймер активен' : 'Таймер остановлен',
+                                        style: TextStyle(
+                                          color: task.isTimerActive ? Colors.green : Colors.orange,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: task.isTimerActive
+                                        ? null
+                                        : () {
+                                            widget.taskService
+                                                .startTimer(widget.taskIndex);
+                                            setState(() {});
+                                          },
+                                    icon: const Icon(Icons.play_arrow),
+                                    label: const Text('Запустить'),
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: task.isTimerActive
+                                        ? () {
+                                            widget.taskService
+                                                .stopTimer(widget.taskIndex);
+                                            setState(() {});
+                                          }
+                                        : null,
+                                    icon: const Icon(Icons.pause),
+                                    label: const Text('Остановить'),
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      widget.taskService
+                                          .resetTimer(widget.taskIndex);
+                                      setState(() {});
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text('Сбросить'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                onPressed: _showDurationDialog,
+                                icon: const Icon(Icons.edit),
+                                label: const Text('Изменить время'),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // Комментарии
             const Text(
@@ -317,5 +442,136 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ],
       ),
     );
+  }
+
+  void _showDurationDialog() {
+    int hours = widget.task.estimatedDuration?.inHours ?? 0;
+    int minutes = widget.task.estimatedDuration?.inMinutes.remainder(60) ?? 0;
+    int seconds = widget.task.estimatedDuration?.inSeconds.remainder(60) ?? 0;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Изменить время выполнения'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              const Text('Часы', style: TextStyle(fontWeight: FontWeight.bold)),
+                              TextField(
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                controller: TextEditingController(text: hours.toString()),
+                                onChanged: (value) {
+                                  setState(() {
+                                    hours = int.tryParse(value) ?? 0;
+                                  });
+                                },
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              const Text('Минуты', style: TextStyle(fontWeight: FontWeight.bold)),
+                              TextField(
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                controller: TextEditingController(text: minutes.toString()),
+                                onChanged: (value) {
+                                  setState(() {
+                                    minutes = int.tryParse(value) ?? 0;
+                                  });
+                                },
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              const Text('Секунды', style: TextStyle(fontWeight: FontWeight.bold)),
+                              TextField(
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                controller: TextEditingController(text: seconds.toString()),
+                                onChanged: (value) {
+                                  setState(() {
+                                    seconds = int.tryParse(value) ?? 0;
+                                  });
+                                },
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Итого: ${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (hours > 0 || minutes > 0 || seconds > 0) {
+                      final newDuration = Duration(
+                        hours: hours,
+                        minutes: minutes,
+                        seconds: seconds,
+                      );
+                      widget.taskService.setTaskDuration(widget.taskIndex, newDuration);
+                      widget.taskService.resetTimer(widget.taskIndex);
+                      this.setState(() {});
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Сохранить'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 }

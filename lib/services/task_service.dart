@@ -47,6 +47,7 @@ class TaskService {
     DateTime? teamDeadline,
     String? assignedTo,
     String? assignedRole,
+    Duration? estimatedDuration,
   }) {
     final task = Task(
       title: title,
@@ -57,6 +58,7 @@ class TaskService {
       assignedTo: assignedTo,
       assignedRole: assignedRole,
       comments: [],
+      estimatedDuration: estimatedDuration,
     );
     tasks.add(task);
     
@@ -279,7 +281,7 @@ class TaskService {
     if (taskIndex < 0 || taskIndex >= tasks.length) return;
     final member = teamMembers.firstWhere(
       (m) => m.id == memberId,
-      orElse: () => TeamMember(id: memberId, name: memberId, role: 'unknown'),
+      orElse: () => TeamMember(id: memberId, name: memberId, role: Role.developer),
     );
     _recordChange(taskIndex, 'Исполнитель', tasks[taskIndex].assignedTo ?? 'Не назначено', member.name);
     tasks[taskIndex].assignedTo = member.name;
@@ -338,7 +340,7 @@ class TaskService {
     }).toList();
   }
 
-  List<String> getTaskComments(int taskIndex) {
+  List<Comment> getTaskComments(int taskIndex) {
     if (taskIndex < 0 || taskIndex >= tasks.length) return [];
     return tasks[taskIndex].comments;
   }
@@ -413,14 +415,6 @@ class TaskService {
     }).toList();
   }
 
-  List<Task> getOverdueTasks() {
-    final now = DateTime.now();
-    return tasks.where((task) {
-      if (task.teamDeadline == null || task.isDone) return false;
-      return task.teamDeadline!.isBefore(now);
-    }).toList();
-  }
-
   List<Task> getTasksByAssignee(String assigneeName) {
     return tasks.where((task) => task.assignedTo == assigneeName).toList();
   }
@@ -443,6 +437,121 @@ class TaskService {
   double getCompletionRateForDate(DateTime date) {
     final stats = productivityStats.dailyStats[date];
     return stats?.completionRate ?? 0;
+  }
+
+  // ===================== МЕТОДЫ ДЛЯ РАБОТЫ С ТАЙМЕРОМ =====================
+
+  /// Установить время выполнения для задачи
+  void setTaskDuration(int index, Duration duration) {
+    if (index < 0 || index >= tasks.length) return;
+    tasks[index].estimatedDuration = duration;
+    _recordChange(index, 'Время выполнения', '', _formatDuration(duration));
+  }
+
+  /// Запустить таймер для задачи
+  void startTimer(int index) {
+    if (index < 0 || index >= tasks.length) return;
+    final task = tasks[index];
+    if (task.estimatedDuration == null || task.estimatedDuration!.inSeconds <= 0) return;
+    
+    task.isTimerActive = true;
+    task.timerStartedAt = DateTime.now();
+  }
+
+  /// Остановить таймер для задачи
+  void stopTimer(int index) {
+    if (index < 0 || index >= tasks.length) return;
+    final task = tasks[index];
+    task.isTimerActive = false;
+    task.timerStartedAt = null;
+  }
+
+  /// Получить оставшееся время для задачи
+  Duration? getRemainingTime(int index) {
+    if (index < 0 || index >= tasks.length) return null;
+    final task = tasks[index];
+    
+    if (task.estimatedDuration == null || task.timerStartedAt == null) {
+      return task.estimatedDuration;
+    }
+
+    final elapsed = DateTime.now().difference(task.timerStartedAt!);
+    final remaining = task.estimatedDuration!.inSeconds - elapsed.inSeconds;
+
+    if (remaining <= 0) {
+      task.isTimerActive = false;
+      return Duration.zero;
+    }
+
+    return Duration(seconds: remaining);
+  }
+
+  /// Получить прогресс таймера (0-1)
+  double getTimerProgress(int index) {
+    if (index < 0 || index >= tasks.length) return 0;
+    final task = tasks[index];
+    
+    if (task.estimatedDuration == null || task.estimatedDuration!.inSeconds <= 0) {
+      return 0;
+    }
+
+    if (task.timerStartedAt == null) {
+      return 0;
+    }
+
+    final elapsed = DateTime.now().difference(task.timerStartedAt!);
+    final progress = elapsed.inSeconds / task.estimatedDuration!.inSeconds;
+
+    return progress.clamp(0.0, 1.0);
+  }
+
+  /// Форматировать Duration в строку (HH:MM:SS)
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  /// Получить отформатированное время выполнения
+  String getFormattedDuration(int index) {
+    if (index < 0 || index >= tasks.length) return 'Не установлено';
+    final task = tasks[index];
+    
+    if (task.estimatedDuration == null) {
+      return 'Не установлено';
+    }
+
+    return _formatDuration(task.estimatedDuration!);
+  }
+
+  /// Получить отформатированное оставшееся время
+  String getFormattedRemainingTime(int index) {
+    final remaining = getRemainingTime(index);
+    if (remaining == null) return 'Не установлено';
+    return _formatDuration(remaining);
+  }
+
+  /// Проверить, истекло ли время
+  bool isTimeExpired(int index) {
+    if (index < 0 || index >= tasks.length) return false;
+    final task = tasks[index];
+    
+    if (task.estimatedDuration == null || task.timerStartedAt == null) {
+      return false;
+    }
+
+    final elapsed = DateTime.now().difference(task.timerStartedAt!);
+    return elapsed.inSeconds >= task.estimatedDuration!.inSeconds;
+  }
+
+  /// Сбросить таймер
+  void resetTimer(int index) {
+    if (index < 0 || index >= tasks.length) return;
+    final task = tasks[index];
+    task.isTimerActive = false;
+    task.timerStartedAt = null;
   }
 }
 

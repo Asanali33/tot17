@@ -14,6 +14,9 @@ class Task {
   List<TaskChange> changesHistory;
   TaskStatus status; // новый статус задачи
   String? assignedRole; // роль, ответственная за задачу
+  Duration? estimatedDuration; // время выполнения задачи
+  DateTime? timerStartedAt; // время начала таймера
+  bool isTimerActive; // активен ли таймер
 
   Task({
     required this.title,
@@ -31,6 +34,9 @@ class Task {
     this.changesHistory = const [],
     this.status = TaskStatus.todo,
     this.assignedRole,
+    this.estimatedDuration,
+    this.timerStartedAt,
+    this.isTimerActive = false,
   }) : createdAt = createdAt ?? DateTime.now();
 }
 
