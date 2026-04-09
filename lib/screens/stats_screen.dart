@@ -23,7 +23,10 @@ class _StatsScreenState extends State<StatsScreen> {
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.statistics), centerTitle: true),
+      appBar: AppBar(
+        title: Text(localizations.statistics),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -97,9 +100,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     SizedBox(height: 12),
                     Text(
                       "${total > 0 ? ((completed / total) * 100).toStringAsFixed(1) : 0}${localizations.percentCompleted}",
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -115,42 +116,106 @@ class _StatsScreenState extends State<StatsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Геймификация',
+                      localizations.experiencePoints,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Уровень: ${widget.taskService.level}',
-                      style: theme.textTheme.bodyMedium,
+                    SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.star,
+                          color: colorScheme.secondary,
+                          size: 32,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          '${widget.taskService.experience}',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: colorScheme.secondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          localizations.totalExperience,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Опыт: ${widget.taskService.experience}',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: widget.taskService.achievements
-                          .map(
-                            (achievement) => Chip(
-                              label: Text(achievement),
-                              backgroundColor: colorScheme.primaryContainer,
-                              labelStyle: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                          )
-                          .toList(),
+                    SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.trending_up,
+                          color: colorScheme.primary,
+                          size: 24,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '${localizations.level} ${widget.taskService.level}',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
             SizedBox(height: 20),
-            if (total == 0)
+            Card(
+              elevation: 3,
+              color: theme.cardColor,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizations.achievements,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    if (widget.taskService.achievements.isEmpty)
+                      Center(
+                        child: Text(
+                          localizations.noAchievements,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      )
+                    else
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: widget.taskService.achievements.map((achievementKey) {
+                          return Chip(
+                            avatar: Icon(
+                              Icons.emoji_events,
+                              color: colorScheme.primary,
+                              size: 20,
+                            ),
+                            label: Text(_getAchievementText(achievementKey, localizations)),
+                            backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
               Center(
                 child: Text(
                   localizations.addTasksForStats,
@@ -163,6 +228,27 @@ class _StatsScreenState extends State<StatsScreen> {
         ),
       ),
     );
+  }
+
+  String _getAchievementText(String key, AppLocalizations localizations) {
+    switch (key) {
+      case 'firstCompletion':
+        return localizations.firstCompletion;
+      case 'master5Tasks':
+        return localizations.master5Tasks;
+      case 'hero10Tasks':
+        return localizations.hero10Tasks;
+      case 'legend20Tasks':
+        return localizations.legend20Tasks;
+      case 'level2':
+        return localizations.level2;
+      case 'level5':
+        return localizations.level5;
+      case 'level10':
+        return localizations.level10;
+      default:
+        return key;
+    }
   }
 }
 
@@ -184,7 +270,7 @@ class _StatItem extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withAlpha((0.2 * 255).round()),
+            color: color.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -199,10 +285,7 @@ class _StatItem extends StatelessWidget {
         SizedBox(height: 8),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
       ],
     );

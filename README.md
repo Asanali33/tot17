@@ -1,20 +1,162 @@
-# taskflow
+# TaskFlow - Productivity App
 
-A new Flutter project.
+A comprehensive Flutter task management application with productivity analytics and multi-language support.
 
-## Getting Started
+## 🚀 Quick Start - Small Phone Cold Boost Emulator
 
-This app now includes a theme switcher – you can toggle between light and dark modes in the **Settings** screen. The selected appearance is saved across launches and the UI elements adapt to show a clear contrast in each mode (backgrounds, cards, buttons, text, navigation bar).
+This project is specifically configured to run on the **Small Phone Cold Boost** Android emulator for optimal development experience.
 
+### Prerequisites
+- Flutter SDK 3.41.4+
+- Android Studio with Android SDK 36.1.0
+- Android NDK 28.2.13676358
+- Android Emulator
 
-This project is a starting point for a Flutter application.
+### 🔧 Android SDK/NDK Verification
 
-A few resources to get you started if this is your first Flutter project:
+Run the verification script to ensure all components are properly installed:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+# Windows
+verify_android_setup.bat
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This script will check:
+- ✅ Android SDK installation
+- ✅ Android NDK 28.2.13676358
+- ✅ Android Emulator
+- ✅ Android Platform Tools (ADB)
+- ✅ Flutter Android licenses
+
+### 📱 Launch Small Phone Cold Boost Emulator
+
+Use the dedicated launcher script:
+
+```bash
+# Windows
+launch_emulator.bat
+```
+
+This script will:
+1. Verify Android SDK/NDK installation
+2. Create "Small Phone Cold Boost" AVD if it doesn't exist
+3. Start the emulator with optimized settings:
+   - Cold boot (no snapshot)
+   - 2GB RAM
+   - 2 CPU cores
+   - SwiftShader GPU acceleration
+   - 1080x2400 resolution
+
+### 🛠️ Development in VS Code
+
+1. **Automatic Setup**: Use the "TaskFlow - Small Phone Cold Boost" debug configuration
+   - This will automatically launch the emulator and start the app
+
+2. **Manual Launch**: After emulator is running:
+   ```bash
+   flutter run --device-id emulator-5554
+   ```
+
+### 📊 Features
+
+- ✅ Task management with categories and priorities
+- ✅ Productivity analytics with charts
+- ✅ Procrastination tracking and analysis
+- ✅ Workload forecasting
+- ✅ Multi-language support (Russian/English)
+- ✅ Dark/Light theme switching
+- ✅ Local data persistence
+
+### 🏗️ Project Structure
+
+```
+lib/
+├── main.dart                 # App entry point
+├── models/
+│   └── task.dart            # Task data model
+├── services/
+│   └── task_service.dart    # Business logic & analytics
+├── screens/
+│   ├── main_screen.dart     # Main navigation
+│   ├── home_screen.dart     # Task list & management
+│   ├── stats_screen.dart    # Basic statistics
+│   ├── analytics_screen.dart # Advanced productivity analytics
+│   └── settings_screen.dart # App settings
+├── widgets/
+│   └── task_tile.dart       # Task item widget
+└── l10n/                    # Localization files
+    ├── app_en.arb
+    └── app_ru.arb
+```
+
+### 🎯 Analytics Features
+
+The app includes comprehensive productivity analytics:
+
+1. **Completed Tasks Chart** - Track daily task completion over 30 days
+2. **Procrastination Analysis** - Pie chart of procrastination reasons
+3. **Average Completion Time** - Time metrics for task completion
+4. **Workload Forecast** - 7-day ahead task planning
+
+### 🌍 Localization
+
+The app supports Russian and English languages with automatic detection based on device settings.
+
+### 📱 Emulator Configuration
+
+**Small Phone Cold Boost** specifications:
+- Device: Pixel 7a (small phone form factor)
+- API Level: 35 (Android 15)
+- Architecture: x86_64
+- RAM: 2048 MB
+- CPU Cores: 2
+- GPU: SwiftShader (software rendering)
+- Resolution: 1080x2400
+
+This configuration provides optimal performance for development while maintaining realistic device characteristics.
+
+## 🔧 Development Commands
+
+```bash
+# Verify setup
+./verify_android_setup.bat
+
+# Launch emulator
+./launch_emulator.bat
+
+# Run on specific device
+flutter run --device-id emulator-5554
+
+# Build APK
+flutter build apk --target-platform android-arm64
+
+# Generate localization
+flutter gen-l10n
+
+# Run tests
+flutter test
+
+# Analyze code
+flutter analyze
+```
+
+## 📋 Requirements
+
+- **Flutter**: 3.41.4
+- **Dart**: 3.11.1
+- **Android SDK**: 36.1.0
+- **Android NDK**: 28.2.13676358
+- **Java**: 17
+- **Android Emulator**: 36.4.9.0
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make changes
+4. Run tests: `flutter test`
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.

@@ -162,8 +162,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTasksForStats => '📝 Add tasks to view statistics';
 
   @override
+  String get searchTasks => 'Search tasks...';
+
+  @override
+  String get onlyActive => 'Only active';
+
+  @override
+  String get priority => 'Priority';
+
+  @override
+  String get byPriority => 'by priority';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get noSorting => 'No sorting';
+
+  @override
+  String get noTasks => 'No tasks';
+
+  @override
+  String get productivityAnalytics => 'Productivity Analytics';
+
+  @override
+  String get completedTasksChart => 'Completed Tasks';
+
+  @override
+  String get procrastinationAnalysis => 'Procrastination Analysis';
+
+  @override
+  String get averageCompletionTime => 'Average Completion Time';
+
+  @override
+  String get workloadForecast => 'Workload Forecast';
+
+  @override
+  String get noData => 'No data available';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get hours => 'hours';
+
+  @override
+  String get minutes => 'minutes';
+
+  @override
+  String get seconds => 'seconds';
+
+  @override
+  String get procrastinationReasons => 'Why didn\'t you complete the task?';
+
+  @override
+  String get tooTiring => 'Too tiring';
+
+  @override
+  String get lackOfTime => 'Lack of time';
+
+  @override
+  String get lackOfMotivation => 'Lack of motivation';
+
+  @override
+  String get tooComplex => 'Too complex';
+
+  @override
+  String get forgot => 'Forgot';
+
+  @override
+  String get otherReason => 'Other';
+
+  @override
   String get standard => 'Standard';
 
   @override
   String get setDefaultDeadline => 'Set default deadline (tomorrow)';
+
+  @override
+  String get lowPriority => 'Low';
+
+  @override
+  String get mediumPriority => 'Medium';
+
+  @override
+  String get highPriority => 'High';
+
+  @override
+  String get experiencePoints => 'Experience Points';
+
+  @override
+  String get totalExperience => 'Total Experience';
+
+  @override
+  String get level => 'Level';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get firstCompletion => 'First Completion';
+
+  @override
+  String get master5Tasks => 'Master of 5 Tasks';
+
+  @override
+  String get hero10Tasks => 'Hero of 10 Tasks';
+
+  @override
+  String get legend20Tasks => 'Legend of 20 Tasks';
+
+  @override
+  String get levelUp => 'Level Up!';
+
+  @override
+  String get achievementUnlocked => 'Achievement Unlocked!';
+
+  @override
+  String get noAchievements => 'No achievements yet';
+
+  @override
+  String get level2 => 'Level 2 Reached!';
+
+  @override
+  String get level5 => 'Level 5 Reached!';
+
+  @override
+  String get level10 => 'Level 10 Reached!';
 }
