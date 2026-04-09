@@ -36,13 +36,13 @@ class AIAssistantContext {
   String? currentTeamFocus; // фокус на команду
 
   AIAssistantContext({
-    this.conversationHistory = const [],
+    List<AIMessage>? conversationHistory,
     this.currentTaskFocus,
     this.currentTeamFocus,
-  });
+  }) : conversationHistory = List<AIMessage>.from(conversationHistory ?? []);
 
   void clearHistory() {
-    conversationHistory = [];
+    conversationHistory = List<AIMessage>.from([]);
   }
 
   void addMessage(AIMessage message) {

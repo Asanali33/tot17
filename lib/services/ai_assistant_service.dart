@@ -1,5 +1,4 @@
 import '../models/ai_message.dart';
-import '../models/task.dart';
 import 'task_service.dart';
 
 class AIAssistantService {
@@ -35,72 +34,88 @@ class AIAssistantService {
 
     final lowerMessage = userMessage.toLowerCase();
 
-    // Помощь с задачами
+    if (lowerMessage.contains('привет') || lowerMessage.contains('здравств') || lowerMessage.contains('hi') || lowerMessage.contains('hello')) {
+      return 'Привет! Я AI помощник вашего приложения. Спросите меня о задачах, дедлайнах, команде или приоритете, и я помогу.';
+    }
+
+    if (lowerMessage.contains('спасибо') || lowerMessage.contains('thx') || lowerMessage.contains('thank')) {
+      return 'Пожалуйста! Если хотите, я могу подсказать, какие задачи стоит закрыть в первую очередь.';
+    }
+
+    if (lowerMessage.contains('как дела') || lowerMessage.contains('как ты')) {
+      return 'У меня всё отлично, я готов помогать вам планировать задачи и организовывать команду!';
+    }
+
+    final totalTasks = taskService.tasks.length;
+    final incompleteTasks = taskService.getIncompleteTasksOnly().length;
+    final overdueTasks = taskService.getOverdueTasks().length;
+    final highPriority = taskService.tasks.where((task) => task.priority == 3 && !task.isDone).length;
+    final dueToday = taskService.getTasksDueToday().length;
+
     if (lowerMessage.contains('задача') || lowerMessage.contains('задач')) {
-      if (lowerMessage.contains('сколько') || lowerMessage.contains('количество')) {
-        return 'У вас всего ${taskService.tasks.length} задач. '
-            'Из них выполнено ${taskService.completedTotal}, в процессе ${taskService.tasks.where((t) => !t.isDone).length}. '
-            'Ваш уровень: ${taskService.level}, опыт: ${taskService.experience} XP.';
+      if (lowerMessage.contains('сколько') || lowerMessage.contains('количество') || lowerMessage.contains('всего')) {
+        return 'У вас всего $totalTasks задач, из них $incompleteTasks незавершенных, '
+            '$overdueTasks просроченных и $dueToday актуальных на сегодня.';
       }
       if (lowerMessage.contains('приоритет') || lowerMessage.contains('важн')) {
-        final highPriority = taskService.tasks.where((t) => t.priority == 3).length;
-        return 'У вас $highPriority задач с высоким приоритетом. '
-            'Рекомендую сначала сосредоточиться на них!';
+        return 'Среди незавершенных задач $highPriority имеют высокий приоритет. '
+            'Я рекомендую начать с них.';
       }
-      if (lowerMessage.contains('дедлайн') || lowerMessage.contains('время')) {
-        final upcoming = taskService.getUpcomingDeadlines();
-        if (upcoming.isEmpty) {
-          return 'Хорошие новости! Приближающихся дедлайнов нет.';
+      if (lowerMessage.contains('дедлайн') || lowerMessage.contains('срок') || lowerMessage.contains('сегодня') || lowerMessage.contains('срочно')) {
+        if (dueToday > 0) {
+          final tasks = taskService.getTasksDueToday().take(3).map((task) => task.title).join(', ');
+          return 'Сегодня нужно закрыть $dueToday задач(и): $tasks. '
+              'Начните с тех, у которых дедлайн ближе всего.';
         }
-        return 'У вас ${upcoming.length} задач с дедлайнами в ближайшие 3 дня. '
-            'Не забудьте про них!';
+        return 'Сегодня задач с дедлайнами нет. Можно сосредоточиться на важных задачах или добавить новую цель.';
+      }
+      if (lowerMessage.contains('лучше') || lowerMessage.contains('что делать') || lowerMessage.contains('с чего начать')) {
+        final recommendations = taskService.getIncompleteTasksSortedByPriorityAndDeadline();
+        if (recommendations.isEmpty) {
+          return 'Сейчас нет незавершенных задач. Отличная возможность создать новую задачу и начать планирование.';
+        }
+        final first = recommendations.first;
+        final deadline = first.deadline != null ? _formatDate(first.deadline!) : 'не задан';
+        return 'Совет: начните с задачи "${first.title}" (приоритет ${first.priority}, дедлайн $deadline).';
       }
     }
 
-    // Помощь с командой
     if (lowerMessage.contains('команда') || lowerMessage.contains('члены')) {
       return 'В вашей команде ${taskService.teamMembers.length} человек. '
           '${taskService.teamMembers.map((m) => m.name).join(', ')}. '
           'Всего задач распределено: ${taskService.tasks.where((t) => t.assignedTo != null).length}.';
     }
 
-    // Помощь с продуктивностью
-    if (lowerMessage.contains('продуктив') || lowerMessage.contains('статистик')) {
+    if (lowerMessage.contains('продуктив') || lowerMessage.contains('статистик') || lowerMessage.contains('анализ')) {
       final overview = taskService.getProductivityOverview();
-      return 'Ваша статистика: '
-          'Всего создано задач: ${overview['totalTasksCreated']}, '
-          'Выполнено: ${overview['totalTasksCompleted']}, '
-          'Процент выполнения: ${overview['averageCompletionRate']}%. '
+      return 'Ваша статистика: всего создано ${overview['totalTasksCreated']}, '
+          'выполнено ${overview['totalTasksCompleted']}, '
+          'средний процент выполнения ${overview['averageCompletionRate']}%. '
           'Пропущено дедлайнов: ${overview['missedDeadlines']}.';
     }
 
-    // Советы и рекомендации
     if (lowerMessage.contains('совет') || lowerMessage.contains('помощь') || lowerMessage.contains('как')) {
-      return 'Вот несколько советов для повышения продуктивности:\n'
-          '1️⃣ Устанавливайте реалистичные дедлайны для задач\n'
-          '2️⃣ Разбивайте большие задачи на подзадачи\n'
-          '3️⃣ Добавляйте комментарии и отслеживайте прогресс\n'
-          '4️⃣ Назначайте ответственных людей для командных задач\n'
-          '5️⃣ Регулярно проверяйте аналитику и статистику';
+      return 'Нужно повысить продуктивность? Вот как я могу помочь:\n'
+          '1️⃣ Подскажу, какие задачи стоит выполнить в первую очередь\n'
+          '2️⃣ Напомню о дедлайнах на сегодня\n'
+          '3️⃣ Помогу с командой и распределением\n'
+          '4️⃣ Посоветую, как лучше планировать рабочий день';
     }
 
-    // Помощь с ролями
-    if (lowerMessage.contains('роль') || lowerMessage.contains('пермисс')) {
+    if (lowerMessage.contains('роль') || lowerMessage.contains('пермисс') || lowerMessage.contains('права')) {
       return 'Доступные роли:\n'
           '👨‍💻 Разработчик - может назначать задачи и менять статус\n'
-          '🧪 Тестировщик - может проверять и оставлять комментарии\n'
-          '📊 Менеджер - управляет всем и всеми\n'
-          '🎨 Дизайнер - отвечает за дизайн задач';
+          '🧪 Тестировщик - может проверять и комментировать задачи\n'
+          '📊 Менеджер - управляет всеми задачами\n'
+          '🎨 Дизайнер - отвечает за визуальную часть задач';
     }
 
-    // Общие ответы
-    return 'Я помощник по управлению задачами! 🤖\n'
-        'Я могу помочь вам с:\n'
-        '📋 Информацией о задачах\n'
-        '👥 Управлением командой\n'
-        '📊 Статистикой продуктивности\n'
-        '💡 Советами и рекомендациями\n\n'
-        'Спросите меня о чем-нибудь!';
+    return 'Я AI-помощник по управлению задачами. '
+        'Спросите меня о задачах, приоритетах, дедлайнах или команде, и я дам ответ.';
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}';
   }
 
   void setTaskFocus(int? taskIndex) {

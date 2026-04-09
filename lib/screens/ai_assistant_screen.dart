@@ -53,8 +53,11 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
       _isLoading = true;
     });
 
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
       await aiService.processMessage(message);
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -62,10 +65,11 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
       // Прокручиваем вниз к последнему сообщению
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Ошибка: $e')),
       );
     }
