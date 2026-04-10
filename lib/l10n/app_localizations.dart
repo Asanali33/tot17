@@ -134,6 +134,24 @@ abstract class AppLocalizations {
   /// **'Add'**
   String get add;
 
+  /// No description provided for @general.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get general;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
   /// No description provided for @completed.
   ///
   /// In en, this message translates to:
@@ -158,23 +176,245 @@ abstract class AppLocalizations {
   /// **'New task title'**
   String get newTaskTitle;
 
-  /// No description provided for @cancel.
+  /// No description provided for @addComment.
   ///
   /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
+  /// **'Add comment'**
+  String get addComment;
 
-  /// No description provided for @save.
+  /// No description provided for @enterCommentText.
   ///
   /// In en, this message translates to:
-  /// **'Save'**
-  String get save;
+  /// **'Enter comment text'**
+  String get enterCommentText;
 
-  /// No description provided for @general.
+  /// No description provided for @deadlineNotSelectedAddWithoutDeadline.
   ///
   /// In en, this message translates to:
-  /// **'General'**
-  String get general;
+  /// **'Deadline not selected. Add task without deadline?'**
+  String get deadlineNotSelectedAddWithoutDeadline;
+
+  /// No description provided for @taskDurationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set task duration'**
+  String get taskDurationTitle;
+
+  /// No description provided for @totalDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {duration}'**
+  String totalDuration(Object duration);
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @setDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get setDuration;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
+
+  /// No description provided for @assign.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign'**
+  String get assign;
+
+  /// No description provided for @unassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get unassigned;
+
+  /// No description provided for @priorityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority:'**
+  String get priorityLabel;
+
+  /// No description provided for @comments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments:'**
+  String get comments;
+
+  /// No description provided for @edited.
+  ///
+  /// In en, this message translates to:
+  /// **' (edited)'**
+  String get edited;
+
+  /// No description provided for @enterNameAndSelectRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name and select a role'**
+  String get enterNameAndSelectRole;
+
+  /// No description provided for @addedToTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'added to the team'**
+  String get addedToTeam;
+
+  /// No description provided for @manageDeadlines.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadline management'**
+  String get manageDeadlines;
+
+  /// No description provided for @overdueTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue tasks'**
+  String get overdueTasks;
+
+  /// No description provided for @deadlinesToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadlines today'**
+  String get deadlinesToday;
+
+  /// No description provided for @noUrgentDeadlines.
+  ///
+  /// In en, this message translates to:
+  /// **'No urgent deadlines!\nGreat job!'**
+  String get noUrgentDeadlines;
+
+  /// No description provided for @otherTasksFine.
+  ///
+  /// In en, this message translates to:
+  /// **'Other tasks are under control ✅'**
+  String get otherTasksFine;
+
+  /// No description provided for @totalTasksCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Total tasks created'**
+  String get totalTasksCreated;
+
+  /// No description provided for @tasksCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks completed'**
+  String get tasksCompleted;
+
+  /// No description provided for @averagePercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average %'**
+  String get averagePercentage;
+
+  /// No description provided for @missedDeadlines.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed deadlines'**
+  String get missedDeadlines;
+
+  /// No description provided for @whenMostProductive.
+  ///
+  /// In en, this message translates to:
+  /// **'When you are most productive'**
+  String get whenMostProductive;
+
+  /// No description provided for @mostProductiveHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Most productive hour'**
+  String get mostProductiveHour;
+
+  /// No description provided for @completeImportantTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete important tasks during this time!'**
+  String get completeImportantTasks;
+
+  /// No description provided for @mostProductiveDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Most productive day'**
+  String get mostProductiveDay;
+
+  /// No description provided for @completedOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {completed} of {total} tasks'**
+  String completedOfTotal(Object completed, Object total);
+
+  /// No description provided for @completionTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion time: {times}'**
+  String completionTimeLabel(Object times);
+
+  /// No description provided for @tasksByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks by category'**
+  String get tasksByCategory;
+
+  /// No description provided for @tasksCountSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tasks'**
+  String tasksCountSummary(Object count);
+
+  /// No description provided for @dailyStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily statistics'**
+  String get dailyStatistics;
+
+  /// No description provided for @noDataLastDays.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for the last days'**
+  String get noDataLastDays;
+
+  /// No description provided for @notSetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSetLabel;
+
+  /// No description provided for @remainingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining: {days} days'**
+  String remainingDays(Object days);
+
+  /// No description provided for @overdueByDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue by {days} days'**
+  String overdueByDays(Object days);
+
+  /// No description provided for @taskCountWithAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'{assignee} ({count} tasks)'**
+  String taskCountWithAssignee(Object assignee, Object count);
+
+  /// No description provided for @taskDeadlineDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadline: {date}'**
+  String taskDeadlineDate(Object date);
+
+  /// No description provided for @greatJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job!'**
+  String get greatJob;
 
   /// No description provided for @notifications.
   ///
@@ -446,6 +686,144 @@ abstract class AppLocalizations {
   /// **'No tasks'**
   String get noTasks;
 
+  /// No description provided for @collaboration.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaboration'**
+  String get collaboration;
+
+  /// No description provided for @team.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get team;
+
+  /// No description provided for @createTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a team'**
+  String get createTeam;
+
+  /// No description provided for @teamMemberName.
+  ///
+  /// In en, this message translates to:
+  /// **'Team member name'**
+  String get teamMemberName;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get role;
+
+  /// No description provided for @selectRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Select role'**
+  String get selectRole;
+
+  /// No description provided for @addTeamMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Add team member'**
+  String get addTeamMember;
+
+  /// No description provided for @teamMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Team members'**
+  String get teamMembers;
+
+  /// No description provided for @taskDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Task distribution'**
+  String get taskDistribution;
+
+  /// No description provided for @teamDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Team deadline'**
+  String get teamDeadline;
+
+  /// No description provided for @taskDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Task duration'**
+  String get taskDuration;
+
+  /// No description provided for @timerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get timerLabel;
+
+  /// No description provided for @aiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiAssistant;
+
+  /// No description provided for @assistantGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! 👋 I\'m your AI assistant for task management. Ask me about your tasks, team, or productivity!'**
+  String get assistantGreeting;
+
+  /// No description provided for @clearConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation'**
+  String get clearConversation;
+
+  /// No description provided for @clearConversationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation?'**
+  String get clearConversationTitle;
+
+  /// No description provided for @clearConversationContent.
+  ///
+  /// In en, this message translates to:
+  /// **'All messages will be removed.'**
+  String get clearConversationContent;
+
+  /// No description provided for @conversationCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation cleared. Starting fresh!'**
+  String get conversationCleared;
+
+  /// No description provided for @enterQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter question...'**
+  String get enterQuestion;
+
+  /// No description provided for @analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analytics;
+
+  /// No description provided for @overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// No description provided for @deadlines.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadlines'**
+  String get deadlines;
+
   /// No description provided for @productivityAnalytics.
   ///
   /// In en, this message translates to:
@@ -488,6 +866,12 @@ abstract class AppLocalizations {
   /// **'days'**
   String get days;
 
+  /// No description provided for @dayOfMonthSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'th'**
+  String get dayOfMonthSuffix;
+
   /// No description provided for @hours.
   ///
   /// In en, this message translates to:
@@ -505,6 +889,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'seconds'**
   String get seconds;
+
+  /// No description provided for @morning.
+  ///
+  /// In en, this message translates to:
+  /// **'morning'**
+  String get morning;
+
+  /// No description provided for @afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'afternoon'**
+  String get afternoon;
+
+  /// No description provided for @evening.
+  ///
+  /// In en, this message translates to:
+  /// **'evening'**
+  String get evening;
+
+  /// No description provided for @weekdayShortMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get weekdayShortMon;
+
+  /// No description provided for @weekdayShortTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get weekdayShortTue;
+
+  /// No description provided for @weekdayShortWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get weekdayShortWed;
+
+  /// No description provided for @weekdayShortThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get weekdayShortThu;
+
+  /// No description provided for @weekdayShortFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get weekdayShortFri;
+
+  /// No description provided for @weekdayShortSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get weekdayShortSat;
+
+  /// No description provided for @weekdayShortSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get weekdayShortSun;
 
   /// No description provided for @procrastinationReasons.
   ///

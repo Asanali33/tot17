@@ -397,12 +397,44 @@ class TaskService {
     return productivityStats.dailyStats;
   }
 
-  List<int> getMissedDeadlines() {
-    return productivityStats.missedDeadlines;
+  Map<DateTime, int> getCompletedTasksByDay() {
+    return productivityStats.dailyStats.map((date, stats) => MapEntry(date, stats.tasksCompleted));
   }
 
-  double getAverageCompletionRate() {
-    return productivityStats.averageCompletionRate;
+  Map<String, int> getProcrastinationReasons() {
+    return {};
+  }
+
+  Duration getAverageCompletionTime() {
+    final allCompletionTimes = productivityStats.dailyStats.values
+        .expand((stats) => stats.completionTimes)
+        .toList();
+    if (allCompletionTimes.isEmpty) {
+      return Duration.zero;
+    }
+
+    final totalSeconds = allCompletionTimes
+        .map((time) => time.hour * 3600 + time.minute * 60 + time.second)
+        .fold<int>(0, (sum, seconds) => sum + seconds);
+    final averageSeconds = totalSeconds ~/ allCompletionTimes.length;
+    return Duration(seconds: averageSeconds);
+  }
+
+  Map<DateTime, int> getWeeklyWorkloadForecast() {
+    final now = DateTime.now();
+    final forecast = <DateTime, int>{};
+
+    for (var i = 0; i < 7; i++) {
+      final day = DateTime(now.year, now.month, now.day).add(Duration(days: i));
+      forecast[day] = tasks.where((task) {
+        if (task.deadline == null || task.isDone) return false;
+        return task.deadline!.year == day.year &&
+            task.deadline!.month == day.month &&
+            task.deadline!.day == day.day;
+      }).length;
+    }
+
+    return forecast;
   }
 
   List<Task> getTasksDueToday() {

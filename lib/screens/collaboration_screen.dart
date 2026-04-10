@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../services/task_service.dart';
 import '../models/team_member.dart';
 import '../models/role.dart';
@@ -41,10 +42,11 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
   void _addTeamMember() {
     final name = _memberNameController.text.trim();
     final role = _selectedRole;
+    final localizations = AppLocalizations.of(context)!;
 
     if (name.isEmpty || role == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите имя и выберите роль')),
+        SnackBar(content: Text(localizations.enterNameAndSelectRole)),
       );
       return;
     }
@@ -62,7 +64,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$name добавлен в команду')),
+      SnackBar(content: Text('$name ${localizations.addedToTeam}')),
     );
   }
 
@@ -74,15 +76,16 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final tasksByTeam = widget.taskService.getTasksByTeam();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Коллаборация'),
+        title: Text(localizations.collaboration),
         centerTitle: true,
       ),
       body: widget.taskService.teamMembers.isEmpty
-          ? _buildEmptyTeam()
+          ? _buildEmptyTeam(localizations)
           : PageView(
               controller: _pageController,
               onPageChanged: (page) {
@@ -105,14 +108,14 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                   curve: Curves.easeInOut,
                 );
               },
-              items: const [
+              items: [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.people),
-                  label: 'Команда',
+                  icon: const Icon(Icons.people),
+                  label: localizations.team,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.assignment),
-                  label: 'Задачи',
+                  icon: const Icon(Icons.assignment),
+                  label: localizations.tasks,
                 ),
               ],
             )
@@ -120,23 +123,23 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
     );
   }
 
-  Widget _buildEmptyTeam() {
+  Widget _buildEmptyTeam(AppLocalizations localizations) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const SizedBox(height: 20),
         const Icon(Icons.people_outline, size: 64, color: Colors.grey),
         const SizedBox(height: 16),
-        const Text(
-          'Создайте команду',
+        Text(
+          localizations.createTeam,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 32),
         TextField(
           controller: _memberNameController,
           decoration: InputDecoration(
-            hintText: 'Имя члена команды',
+            hintText: localizations.teamMemberName,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.person),
           ),
@@ -145,7 +148,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
         DropdownButtonFormField<Role>(
           value: _selectedRole,
           decoration: InputDecoration(
-            hintText: 'Выберите роль',
+            hintText: localizations.selectRole,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.work),
           ),
@@ -168,20 +171,21 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('Добавить члена команды'),
+          child: Text(localizations.addTeamMember),
         ),
       ],
     );
   }
 
   Widget _buildTeamMembersView() {
+    final localizations = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         TextField(
           controller: _memberNameController,
           decoration: InputDecoration(
-            hintText: 'Имя',
+            hintText: localizations.name,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.person),
           ),
@@ -190,7 +194,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
         DropdownButtonFormField<Role>(
           value: _selectedRole,
           decoration: InputDecoration(
-            hintText: 'Роль',
+            hintText: localizations.role,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.work),
           ),
@@ -213,12 +217,12 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('Добавить'),
+          child: Text(localizations.add),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Члены команды',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          localizations.teamMembers,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         ...widget.taskService.teamMembers.map((member) {
@@ -253,12 +257,13 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
   }
 
   Widget _buildTasksByTeamView(Map<String, List<dynamic>> tasksByTeam) {
+    final localizations = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Распределение задач',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          localizations.taskDistribution,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         ...tasksByTeam.entries.map((entry) {
@@ -270,7 +275,10 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             child: ExpansionTile(
               title: Text(
-                '$assignee (${tasks.length} задач)',
+                localizations.taskCountWithAssignee(
+                  assignee,
+                  tasks.length.toString(),
+                ),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: LinearProgressIndicator(
@@ -337,7 +345,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                                       if (task.assignedRole != null) ...[
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Роль: ${task.assignedRole}',
+                                          '${localizations.role}: ${task.assignedRole}',
                                           style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.blue,
@@ -348,7 +356,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                                   ),
                                   if (task.teamDeadline != null)
                                     Text(
-                                      'Дедлайн: ${task.teamDeadline!.day}.${task.teamDeadline!.month}',
+                                      '${localizations.deadline}: ${task.teamDeadline!.day}.${task.teamDeadline!.month}',
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey,
@@ -371,9 +379,9 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Комментарии:',
-                                    style: TextStyle(
+                                  Text(
+                                    localizations.comments,
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -405,9 +413,9 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
                                                 ),
                                               ),
                                               if (comment.isEdited)
-                                                const Text(
-                                                  ' (изменено)',
-                                                  style: TextStyle(
+                                                Text(
+                                                  localizations.edited,
+                                                  style: const TextStyle(
                                                     fontSize: 10,
                                                     color: Colors.orange,
                                                   ),

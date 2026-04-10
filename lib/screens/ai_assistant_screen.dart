@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../services/ai_assistant_service.dart';
 import '../services/task_service.dart';
 import '../models/ai_message.dart';
@@ -27,10 +28,10 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     aiService = AIAssistantService(taskService: widget.taskService);
     // Добавляем приветственное сообщение
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final localizations = AppLocalizations.of(context)!;
       setState(() {
         aiService.context.addMessage(AIMessage(
-          content: 'Привет! 👋 Я AI помощник вашего приложения для управления задачами. '
-              'Спросите меня о ваших задачах, команде или продуктивности!',
+          content: localizations.assistantGreeting,
           sender: 'ai',
         ));
       });
@@ -88,28 +89,29 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
   }
 
   void _clearConversation() {
+    final localizations = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Очистить диалог?'),
-        content: const Text('Вся история сообщений будет удалена.'),
+        title: Text(localizations.clearConversationTitle),
+        content: Text(localizations.clearConversationContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(localizations.cancel),
           ),
           TextButton(
             onPressed: () {
               aiService.clearConversation();
               setState(() {
                 aiService.context.addMessage(AIMessage(
-                  content: 'Диалог очищен. Начнем с чистого листа! 🗑️',
+                  content: '${localizations.conversationCleared} 🗑️',
                   sender: 'ai',
                 ));
               });
               Navigator.pop(context);
             },
-            child: const Text('Очистить', style: TextStyle(color: Colors.red)),
+            child: Text(localizations.clear, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -118,16 +120,17 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final messages = aiService.getConversationHistory();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Помощник 🤖'),
+        title: Text('${localizations.aiAssistant} 🤖'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: _clearConversation,
-            tooltip: 'Очистить диалог',
+            tooltip: localizations.clearConversation,
           ),
         ],
       ),
@@ -214,7 +217,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Введите вопрос...',
+                      hintText: localizations.enterQuestion,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(color: Colors.grey.shade300),

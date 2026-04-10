@@ -27,6 +27,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get add => 'Add';
 
   @override
+  String get general => 'General';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
   String get completed => 'Completed';
 
   @override
@@ -39,13 +48,142 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newTaskTitle => 'New task title';
 
   @override
-  String get cancel => 'Cancel';
+  String get addComment => 'Add comment';
 
   @override
-  String get save => 'Save';
+  String get enterCommentText => 'Enter comment text';
 
   @override
-  String get general => 'General';
+  String get deadlineNotSelectedAddWithoutDeadline =>
+      'Deadline not selected. Add task without deadline?';
+
+  @override
+  String get taskDurationTitle => 'Set task duration';
+
+  @override
+  String totalDuration(Object duration) {
+    return 'Total: $duration';
+  }
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get setDuration => 'Set';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get assign => 'Assign';
+
+  @override
+  String get unassigned => 'Unassigned';
+
+  @override
+  String get priorityLabel => 'Priority:';
+
+  @override
+  String get comments => 'Comments:';
+
+  @override
+  String get edited => ' (edited)';
+
+  @override
+  String get enterNameAndSelectRole => 'Enter a name and select a role';
+
+  @override
+  String get addedToTeam => 'added to the team';
+
+  @override
+  String get manageDeadlines => 'Deadline management';
+
+  @override
+  String get overdueTasks => 'Overdue tasks';
+
+  @override
+  String get deadlinesToday => 'Deadlines today';
+
+  @override
+  String get noUrgentDeadlines => 'No urgent deadlines!\nGreat job!';
+
+  @override
+  String get otherTasksFine => 'Other tasks are under control ✅';
+
+  @override
+  String get totalTasksCreated => 'Total tasks created';
+
+  @override
+  String get tasksCompleted => 'Tasks completed';
+
+  @override
+  String get averagePercentage => 'Average %';
+
+  @override
+  String get missedDeadlines => 'Missed deadlines';
+
+  @override
+  String get whenMostProductive => 'When you are most productive';
+
+  @override
+  String get mostProductiveHour => 'Most productive hour';
+
+  @override
+  String get completeImportantTasks =>
+      'Complete important tasks during this time!';
+
+  @override
+  String get mostProductiveDay => 'Most productive day';
+
+  @override
+  String completedOfTotal(Object completed, Object total) {
+    return 'Completed $completed of $total tasks';
+  }
+
+  @override
+  String completionTimeLabel(Object times) {
+    return 'Completion time: $times';
+  }
+
+  @override
+  String get tasksByCategory => 'Tasks by category';
+
+  @override
+  String tasksCountSummary(Object count) {
+    return '$count tasks';
+  }
+
+  @override
+  String get dailyStatistics => 'Daily statistics';
+
+  @override
+  String get noDataLastDays => 'No data for the last days';
+
+  @override
+  String get notSetLabel => 'Not set';
+
+  @override
+  String remainingDays(Object days) {
+    return 'Remaining: $days days';
+  }
+
+  @override
+  String overdueByDays(Object days) {
+    return 'Overdue by $days days';
+  }
+
+  @override
+  String taskCountWithAssignee(Object assignee, Object count) {
+    return '$assignee ($count tasks)';
+  }
+
+  @override
+  String taskDeadlineDate(Object date) {
+    return 'Deadline: $date';
+  }
+
+  @override
+  String get greatJob => 'Great job!';
 
   @override
   String get notifications => 'Notifications';
@@ -183,6 +321,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTasks => 'No tasks';
 
   @override
+  String get collaboration => 'Collaboration';
+
+  @override
+  String get team => 'Team';
+
+  @override
+  String get createTeam => 'Create a team';
+
+  @override
+  String get teamMemberName => 'Team member name';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get role => 'Role';
+
+  @override
+  String get selectRole => 'Select role';
+
+  @override
+  String get addTeamMember => 'Add team member';
+
+  @override
+  String get teamMembers => 'Team members';
+
+  @override
+  String get taskDistribution => 'Task distribution';
+
+  @override
+  String get teamDeadline => 'Team deadline';
+
+  @override
+  String get taskDuration => 'Task duration';
+
+  @override
+  String get timerLabel => 'Timer';
+
+  @override
+  String get aiAssistant => 'AI Assistant';
+
+  @override
+  String get assistantGreeting =>
+      'Hi! 👋 I\'m your AI assistant for task management. Ask me about your tasks, team, or productivity!';
+
+  @override
+  String get clearConversation => 'Clear conversation';
+
+  @override
+  String get clearConversationTitle => 'Clear conversation?';
+
+  @override
+  String get clearConversationContent => 'All messages will be removed.';
+
+  @override
+  String get conversationCleared => 'Conversation cleared. Starting fresh!';
+
+  @override
+  String get enterQuestion => 'Enter question...';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get deadlines => 'Deadlines';
+
+  @override
   String get productivityAnalytics => 'Productivity Analytics';
 
   @override
@@ -204,6 +412,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get days => 'days';
 
   @override
+  String get dayOfMonthSuffix => 'th';
+
+  @override
   String get hours => 'hours';
 
   @override
@@ -211,6 +422,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seconds => 'seconds';
+
+  @override
+  String get morning => 'morning';
+
+  @override
+  String get afternoon => 'afternoon';
+
+  @override
+  String get evening => 'evening';
+
+  @override
+  String get weekdayShortMon => 'Mon';
+
+  @override
+  String get weekdayShortTue => 'Tue';
+
+  @override
+  String get weekdayShortWed => 'Wed';
+
+  @override
+  String get weekdayShortThu => 'Thu';
+
+  @override
+  String get weekdayShortFri => 'Fri';
+
+  @override
+  String get weekdayShortSat => 'Sat';
+
+  @override
+  String get weekdayShortSun => 'Sun';
 
   @override
   String get procrastinationReasons => 'Why didn\'t you complete the task?';

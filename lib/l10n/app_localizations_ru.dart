@@ -27,6 +27,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get add => 'Добавить';
 
   @override
+  String get general => 'Общее';
+
+  @override
+  String get cancel => 'Отмена';
+
+  @override
+  String get save => 'Сохранить';
+
+  @override
   String get completed => 'Выполнено';
 
   @override
@@ -39,13 +48,141 @@ class AppLocalizationsRu extends AppLocalizations {
   String get newTaskTitle => 'Новое название задачи';
 
   @override
-  String get cancel => 'Отмена';
+  String get addComment => 'Добавить комментарий';
 
   @override
-  String get save => 'Сохранить';
+  String get enterCommentText => 'Введите текст комментария';
 
   @override
-  String get general => 'Основные';
+  String get deadlineNotSelectedAddWithoutDeadline =>
+      'Дедлайн не выбран. Добавить задачу без дедлайна?';
+
+  @override
+  String get taskDurationTitle => 'Установить время выполнения';
+
+  @override
+  String totalDuration(Object duration) {
+    return 'Итого: $duration';
+  }
+
+  @override
+  String get skip => 'Пропустить';
+
+  @override
+  String get setDuration => 'Установить';
+
+  @override
+  String get notSet => 'Не установлено';
+
+  @override
+  String get assign => 'Назначить';
+
+  @override
+  String get unassigned => 'Не назначено';
+
+  @override
+  String get priorityLabel => 'Приоритет:';
+
+  @override
+  String get comments => 'Комментарии:';
+
+  @override
+  String get edited => ' (изменено)';
+
+  @override
+  String get enterNameAndSelectRole => 'Введите имя и выберите роль';
+
+  @override
+  String get addedToTeam => 'добавлен в команду';
+
+  @override
+  String get manageDeadlines => 'Управление дедлайнами';
+
+  @override
+  String get overdueTasks => 'Просроченные задачи';
+
+  @override
+  String get deadlinesToday => 'Дедлайны сегодня';
+
+  @override
+  String get noUrgentDeadlines => 'Нет срочных дедлайнов!\nХорошая работа!';
+
+  @override
+  String get otherTasksFine => 'Остальные задачи в норме ✅';
+
+  @override
+  String get totalTasksCreated => 'Всего задач создано';
+
+  @override
+  String get tasksCompleted => 'Задач выполнено';
+
+  @override
+  String get averagePercentage => 'Средний %';
+
+  @override
+  String get missedDeadlines => 'Пропущено дедлайнов';
+
+  @override
+  String get whenMostProductive => 'Когда ты продуктивнее всего';
+
+  @override
+  String get mostProductiveHour => 'Самый продуктивный час';
+
+  @override
+  String get completeImportantTasks => 'Выполняй важные задачи в это время!';
+
+  @override
+  String get mostProductiveDay => 'Самый продуктивный день';
+
+  @override
+  String completedOfTotal(Object completed, Object total) {
+    return 'Выполнено $completed из $total задач';
+  }
+
+  @override
+  String completionTimeLabel(Object times) {
+    return 'Время завершения: $times';
+  }
+
+  @override
+  String get tasksByCategory => 'Задачи по категориям';
+
+  @override
+  String tasksCountSummary(Object count) {
+    return '$count задач';
+  }
+
+  @override
+  String get dailyStatistics => 'Статистика по дням';
+
+  @override
+  String get noDataLastDays => 'Нет данных за последние дни';
+
+  @override
+  String get notSetLabel => 'Не установлено';
+
+  @override
+  String remainingDays(Object days) {
+    return 'Осталось: $days дней';
+  }
+
+  @override
+  String overdueByDays(Object days) {
+    return 'Просрочено на $days дней';
+  }
+
+  @override
+  String taskCountWithAssignee(Object assignee, Object count) {
+    return '$assignee ($count задач)';
+  }
+
+  @override
+  String taskDeadlineDate(Object date) {
+    return 'Дедлайн: $date';
+  }
+
+  @override
+  String get greatJob => 'Хорошая работа!';
 
   @override
   String get notifications => 'Уведомления';
@@ -183,6 +320,76 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noTasks => 'Нет задач';
 
   @override
+  String get collaboration => 'Коллаборация';
+
+  @override
+  String get team => 'Команда';
+
+  @override
+  String get createTeam => 'Создайте команду';
+
+  @override
+  String get teamMemberName => 'Имя члена команды';
+
+  @override
+  String get name => 'Имя';
+
+  @override
+  String get role => 'Роль';
+
+  @override
+  String get selectRole => 'Выберите роль';
+
+  @override
+  String get addTeamMember => 'Добавить члена команды';
+
+  @override
+  String get teamMembers => 'Члены команды';
+
+  @override
+  String get taskDistribution => 'Распределение задач';
+
+  @override
+  String get teamDeadline => 'Командный дедлайн';
+
+  @override
+  String get taskDuration => 'Время выполнения';
+
+  @override
+  String get timerLabel => 'Таймер';
+
+  @override
+  String get aiAssistant => 'AI-помощник';
+
+  @override
+  String get assistantGreeting =>
+      'Привет! 👋 Я AI-помощник вашего приложения для управления задачами. Спросите меня о ваших задачах, команде или продуктивности!';
+
+  @override
+  String get clearConversation => 'Очистить диалог';
+
+  @override
+  String get clearConversationTitle => 'Очистить диалог?';
+
+  @override
+  String get clearConversationContent => 'Вся история сообщений будет удалена.';
+
+  @override
+  String get conversationCleared => 'Диалог очищен. Начнем с чистого листа!';
+
+  @override
+  String get enterQuestion => 'Введите вопрос...';
+
+  @override
+  String get analytics => 'Аналитика';
+
+  @override
+  String get overview => 'Обзор';
+
+  @override
+  String get deadlines => 'Дедлайны';
+
+  @override
   String get productivityAnalytics => 'Аналитика продуктивности';
 
   @override
@@ -204,6 +411,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get days => 'дней';
 
   @override
+  String get dayOfMonthSuffix => ' числа';
+
+  @override
   String get hours => 'часов';
 
   @override
@@ -211,6 +421,36 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get seconds => 'секунд';
+
+  @override
+  String get morning => 'утро';
+
+  @override
+  String get afternoon => 'день';
+
+  @override
+  String get evening => 'вечер';
+
+  @override
+  String get weekdayShortMon => 'Пн';
+
+  @override
+  String get weekdayShortTue => 'Вт';
+
+  @override
+  String get weekdayShortWed => 'Ср';
+
+  @override
+  String get weekdayShortThu => 'Чт';
+
+  @override
+  String get weekdayShortFri => 'Пт';
+
+  @override
+  String get weekdayShortSat => 'Сб';
+
+  @override
+  String get weekdayShortSun => 'Вс';
 
   @override
   String get procrastinationReasons => 'Почему не выполнил задачу?';

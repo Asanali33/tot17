@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController searchController = TextEditingController();
   String selectedCategory = 'general';
   bool showOnlyIncomplete = false;
-  String sortByOption = 'по приоритету';
+  String sortByOption = 'byPriority';
 
   @override
   void initState() {
@@ -86,11 +86,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void addCommentToTask(int index) {
     final controller = TextEditingController();
+    final localizations = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Добавить комментарий'),
+        title: Text(localizations.addComment),
         content: TextField(
           controller: controller,
           minLines: 1,
@@ -101,12 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[\s\S]')),
           ],
-          decoration: InputDecoration(hintText: 'Введите текст комментария'),
+          decoration: InputDecoration(hintText: localizations.enterCommentText),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Отмена'),
+            child: Text(localizations.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -119,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
               });
               Navigator.pop(context);
             },
-            child: Text('Сохранить'),
+            child: Text(localizations.save),
           ),
         ],
       ),
@@ -160,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return AlertDialog(
                           title: Text(localizations.deadline),
                           content: Text(
-                            'Дедлайн не выбран. Добавить задачу без дедлайна?',
+                            localizations.deadlineNotSelectedAddWithoutDeadline,
                           ),
                           actions: [
                             TextButton(
@@ -180,8 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   } else {
                     final pickedTime = await showTimePicker(
                       context: parentContext,
-                      initialTime: TimeOfDay(hour: 23, minute: 59),
-                      helpText: 'Выберите время дедлайна',
+                      initialTime: const TimeOfDay(hour: 23, minute: 59),
+                      helpText: localizations.deadline,
                     );
 
                     if (pickedTime == null) {
@@ -191,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return AlertDialog(
                             title: Text(localizations.deadline),
                             content: Text(
-                              'Время не выбрано. Добавить задачу без дедлайна?',
+                              localizations.deadlineNotSelectedAddWithoutDeadline,
                             ),
                             actions: [
                               TextButton(
@@ -231,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return StatefulBuilder(
                         builder: (context, setState) {
                           return AlertDialog(
-                            title: const Text('Установить время выполнения'),
+                            title: Text(localizations.taskDurationTitle),
                             content: SingleChildScrollView(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -242,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            const Text('Часы', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            Text(localizations.hours, style: const TextStyle(fontWeight: FontWeight.bold)),
                                             TextField(
                                               keyboardType: TextInputType.number,
                                               textAlign: TextAlign.center,
@@ -264,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            const Text('Минуты', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            Text(localizations.minutes, style: const TextStyle(fontWeight: FontWeight.bold)),
                                             TextField(
                                               keyboardType: TextInputType.number,
                                               textAlign: TextAlign.center,
@@ -286,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            const Text('Секунды', style: TextStyle(fontWeight: FontWeight.bold)),
+                                            Text(localizations.seconds, style: const TextStyle(fontWeight: FontWeight.bold)),
                                             TextField(
                                               keyboardType: TextInputType.number,
                                               textAlign: TextAlign.center,
@@ -308,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'Итого: ${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                                    '${localizations.totalDuration('${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}')}',
                                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -317,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Пропустить'),
+                                child: Text(localizations.skip),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -332,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Navigator.pop(context);
                                   }
                                 },
-                                child: const Text('Установить'),
+                                child: Text(localizations.setDuration),
                               ),
                             ],
                           );
@@ -414,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? Text(
                             selectedDeadline!.toLocal().toString().split(' ')[0],
                           )
-                        : Text('Не установлено'),
+                        : Text(localizations.notSetLabel),
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
@@ -432,12 +433,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(height: 12),
                   // Командный дедлайн
                   ListTile(
-                    title: Text('Командный дедлайн'),
+                    title: Text(localizations.teamDeadline),
                     subtitle: selectedTeamDeadline != null
                         ? Text(
                             selectedTeamDeadline!.toLocal().toString().split(' ')[0],
                           )
-                        : Text('Не установлено'),
+                        : Text(localizations.notSetLabel),
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
@@ -458,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     DropdownButtonFormField<String>(
                       value: selectedAssignee,
                       decoration: InputDecoration(
-                        labelText: 'Назначить',
+                        labelText: localizations.assign,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -466,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       items: [
                         DropdownMenuItem(
                           value: null,
-                          child: Text('Не назначено'),
+                          child: Text(localizations.unassigned),
                         ),
                         ...taskService.teamMembers.map((member) {
                           return DropdownMenuItem(
@@ -485,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Приоритет:',
+                      Text(localizations.priorityLabel,
                           style: Theme.of(context).textTheme.labelMedium),
                       SizedBox(height: 8),
                       Row(
@@ -493,7 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           _buildPriorityButton(
                             context,
-                            'Низкий',
+                            localizations.lowPriority,
                             1,
                             selectedPriority,
                             Colors.blue,
@@ -501,7 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           _buildPriorityButton(
                             context,
-                            'Средний',
+                            localizations.mediumPriority,
                             2,
                             selectedPriority,
                             Colors.orange,
@@ -509,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           _buildPriorityButton(
                             context,
-                            'Высокий',
+                            localizations.highPriority,
                             3,
                             selectedPriority,
                             Colors.red,
@@ -601,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
     }
 
-    if (sortByOption == 'по приоритету') {
+    if (sortByOption == 'byPriority') {
       filtered.sort((a, b) {
         if (a.priority != b.priority) {
           return b.priority.compareTo(a.priority);
@@ -611,7 +612,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (b.deadline == null) return -1;
         return a.deadline!.compareTo(b.deadline!);
       });
-    } else if (sortByOption == 'по дате') {
+    } else if (sortByOption == 'date') {
       filtered.sort((a, b) {
         if (a.deadline == null && b.deadline == null) return 0;
         if (a.deadline == null) return 1;
@@ -644,7 +645,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text("TaskFlow"), centerTitle: true),
+      appBar: AppBar(title: Text(localizations.appTitle), centerTitle: true),
       body: Column(
         children: [
           Padding(
@@ -694,13 +695,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: 'Поиск задач...',
-                    prefixIcon: Icon(Icons.search),
+                    hintText: localizations.searchTasks,
+                    prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
                 SizedBox(height: 8),
@@ -740,7 +741,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               Expanded(
                                 child: Text(
-                                  'Только активные',
+                                  localizations.onlyActive,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: showOnlyIncomplete
                                         ? colorScheme.onPrimaryContainer
@@ -759,21 +760,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         initialSelection: sortByOption,
                         onSelected: (String? value) {
                           setState(() {
-                            sortByOption = value ?? 'по приоритету';
+                            sortByOption = value ?? 'byPriority';
                           });
                         },
                         dropdownMenuEntries: [
                           DropdownMenuEntry(
-                            value: 'по приоритету',
-                            label: 'Приоритет',
+                            value: 'byPriority',
+                            label: localizations.byPriority,
                           ),
                           DropdownMenuEntry(
-                            value: 'по дате',
-                            label: 'Дата',
+                            value: 'date',
+                            label: localizations.date,
                           ),
                           DropdownMenuEntry(
-                            value: 'без сортировки',
-                            label: 'Нет сортировки',
+                            value: 'noSorting',
+                            label: localizations.noSorting,
                           ),
                         ],
                         width: 140,
@@ -809,7 +810,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(Icons.check_circle_outline,
                             size: 64, color: colorScheme.outlineVariant),
                         SizedBox(height: 16),
-                        Text('Нет задач',
+                        Text(localizations.noTasks,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: colorScheme.outlineVariant,
                             )),

@@ -66,15 +66,15 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
-            label: 'Коллаборация',
+            label: localizations.collaboration,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.trending_up),
-            label: 'Аналитика',
+            label: localizations.analytics,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.smart_toy),
-            label: 'AI Помощник',
+            label: localizations.aiAssistant,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

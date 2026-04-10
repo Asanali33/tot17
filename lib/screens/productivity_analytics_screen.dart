@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../services/task_service.dart';
 import '../models/productivity_stats.dart';
 
@@ -33,12 +34,13 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final overview = widget.taskService.getProductivityOverview();
     final dailyStats = widget.taskService.getDailyStats();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Аналитика продуктивности'),
+        title: Text(localizations.productivityAnalytics),
         centerTitle: true,
       ),
       body: PageView(
@@ -49,9 +51,9 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
           });
         },
         children: [
-          _buildOverviewTab(overview),
-          _buildDailyStatsTab(dailyStats),
-          _buildDeadlinesTab(),
+          _buildOverviewTab(overview, localizations),
+          _buildDailyStatsTab(dailyStats, localizations),
+          _buildDeadlinesTab(localizations),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -63,71 +65,74 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
             curve: Curves.easeInOut,
           );
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.trending_up),
-            label: 'Обзор',
+            icon: const Icon(Icons.trending_up),
+            label: localizations.overview,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Статистика',
+            icon: const Icon(Icons.calendar_today),
+            label: localizations.statistics,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.alarm_off),
-            label: 'Дедлайны',
+            icon: const Icon(Icons.alarm_off),
+            label: localizations.deadlines,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOverviewTab(Map<String, dynamic> overview) {
+  Widget _buildOverviewTab(
+    Map<String, dynamic> overview,
+    AppLocalizations localizations,
+  ) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Общая статистика',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Text(
+          localizations.overallStatistics,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
         _buildStatCard(
-          'Всего задач создано',
+          localizations.totalTasksCreated,
           '${overview['totalTasksCreated']}',
           Icons.add_circle,
           Colors.blue,
         ),
         const SizedBox(height: 12),
         _buildStatCard(
-          'Задач выполнено',
+          localizations.tasksCompleted,
           '${overview['totalTasksCompleted']}',
           Icons.check_circle,
           Colors.green,
         ),
         const SizedBox(height: 12),
         _buildStatCard(
-          'Средний %',
+          localizations.averagePercentage,
           '${overview['averageCompletionRate']}%',
           Icons.pie_chart,
           Colors.purple,
         ),
         const SizedBox(height: 12),
         _buildStatCard(
-          'Пропущено дедлайнов',
+          localizations.missedDeadlines,
           '${overview['missedDeadlines']}',
           Icons.warning,
           Colors.red,
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Когда ты продуктивнее всего',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          localizations.whenMostProductive,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        _buildProductiveHourCard(),
+        _buildProductiveHourCard(localizations),
         const SizedBox(height: 12),
-        _buildProductiveDayCard(),
+        _buildProductiveDayCard(localizations),
         const SizedBox(height: 24),
-        _buildCompletionByCategory(),
+        _buildCompletionByCategory(localizations),
       ],
     );
   }
@@ -173,9 +178,13 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     );
   }
 
-  Widget _buildProductiveHourCard() {
+  Widget _buildProductiveHourCard(AppLocalizations localizations) {
     final mostProductiveHour = widget.taskService.getMostProductiveHour();
-    final period = mostProductiveHour < 12 ? 'утро' : mostProductiveHour < 18 ? 'день' : 'вечер';
+    final period = mostProductiveHour < 12
+        ? localizations.morning
+        : mostProductiveHour < 18
+            ? localizations.afternoon
+            : localizations.evening;
 
     return Card(
       child: Padding(
@@ -183,9 +192,9 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Самый продуктивный час',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              localizations.mostProductiveHour,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -194,7 +203,7 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
             ),
             const SizedBox(height: 8),
             Text(
-              'Выполняй важные задачи в это время!',
+              localizations.completeImportantTasks,
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
           ],
@@ -203,13 +212,13 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     );
   }
 
-  Widget _buildProductiveDayCard() {
+  Widget _buildProductiveDayCard(AppLocalizations localizations) {
     final mostProductiveDay = widget.taskService.getMostProductiveDay();
     if (mostProductiveDay == null) {
       return const SizedBox.shrink();
     }
 
-    final dayName = _getDayName(mostProductiveDay.weekday);
+    final dayName = _getDayName(mostProductiveDay.weekday, localizations);
     final stats = widget.taskService.getDailyStats()[mostProductiveDay];
 
     return Card(
@@ -218,19 +227,19 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Самый продуктивный день',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              localizations.mostProductiveDay,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              '$dayName, ${mostProductiveDay.day} числа',
+              '$dayName, ${mostProductiveDay.day}${localizations.dayOfMonthSuffix}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             if (stats != null)
               Text(
-                'Выполнено ${stats.tasksCompleted} из ${stats.totalTasks} задач (${stats.completionRate.toStringAsFixed(1)}%)',
+                '${localizations.completedOfTotal(stats.tasksCompleted.toString(), stats.totalTasks.toString())} (${stats.completionRate.toStringAsFixed(1)}%)',
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
           ],
@@ -239,7 +248,7 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     );
   }
 
-  Widget _buildCompletionByCategory() {
+  Widget _buildCompletionByCategory(AppLocalizations localizations) {
     final byCategory = widget.taskService.getCompletionByCategory();
 
     if (byCategory.isEmpty) {
@@ -252,9 +261,9 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Задачи по категориям',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              localizations.tasksByCategory,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             ...byCategory.entries.map((entry) {
@@ -271,7 +280,7 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         Text(
-                          '${entry.value} задач',
+                          localizations.tasksCountSummary(entry.value.toString()),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -295,7 +304,10 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     );
   }
 
-  Widget _buildDailyStatsTab(Map<DateTime, DailyStats> dailyStats) {
+  Widget _buildDailyStatsTab(
+    Map<DateTime, DailyStats> dailyStats,
+    AppLocalizations localizations,
+  ) {
     if (dailyStats.isEmpty) {
       return Center(
         child: Column(
@@ -303,7 +315,7 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
           children: [
             const Icon(Icons.calendar_today, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text('Нет данных за последние дни'),
+            Text(localizations.noDataLastDays),
           ],
         ),
       );
@@ -314,14 +326,14 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Статистика по дням',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Text(
+          localizations.dailyStatistics,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         ...sortedDates.map((date) {
           final stats = dailyStats[date]!;
-          final dayName = _getDayName(date.weekday);
+          final dayName = _getDayName(date.weekday, localizations);
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -367,15 +379,22 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Выполнено: ${stats.tasksCompleted} из ${stats.totalTasks}',
+                    localizations.completedOfTotal(
+                      stats.tasksCompleted.toString(),
+                      stats.totalTasks.toString(),
+                    ),
                     style: const TextStyle(fontSize: 14),
                   ),
                   if (stats.completionTimes.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Время завершения: ${stats.completionTimes.map((t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}').join(', ')}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    localizations.completionTimeLabel(
+                      stats.completionTimes
+                          .map((t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}')
+                          .join(', '),
                     ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
                   ],
                 ],
               ),
@@ -386,37 +405,37 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     );
   }
 
-  Widget _buildDeadlinesTab() {
+  Widget _buildDeadlinesTab(AppLocalizations localizations) {
     final dueTodayTasks = widget.taskService.getTasksDueToday();
     final overdueTasks = widget.taskService.getOverdueTasks();
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Управление дедлайнами',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Text(
+          localizations.manageDeadlines,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
         if (overdueTasks.isNotEmpty) ...[
-          const Text(
-            '🔴 Просроченные задачи',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+          Text(
+            '🔴 ${localizations.overdueTasks}',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
           ),
           const SizedBox(height: 12),
           ...overdueTasks.map((task) {
-            return _buildTaskDeadlineCard(task, Colors.red);
+            return _buildTaskDeadlineCard(task, Colors.red, localizations);
           }).toList(),
           const SizedBox(height: 24),
         ],
         if (dueTodayTasks.isNotEmpty) ...[
-          const Text(
-            '🟡 Дедлайны сегодня',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange),
+          Text(
+            '🟡 ${localizations.deadlinesToday}',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange),
           ),
           const SizedBox(height: 12),
           ...dueTodayTasks.map((task) {
-            return _buildTaskDeadlineCard(task, Colors.orange);
+            return _buildTaskDeadlineCard(task, Colors.orange, localizations);
           }).toList(),
           const SizedBox(height: 24),
         ],
@@ -426,25 +445,25 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
               children: [
                 const Icon(Icons.check_circle, size: 64, color: Colors.green),
                 const SizedBox(height: 16),
-                const Text(
-                  'Нет срочных дедлайнов!\nХорошая работа!',
+                Text(
+                  localizations.noUrgentDeadlines,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
           ),
         ] else ...[
-          const Text(
-            'Остальные задачи в норме ✅',
-            style: TextStyle(fontSize: 14, color: Colors.green),
+          Text(
+            localizations.otherTasksFine,
+            style: const TextStyle(fontSize: 14, color: Colors.green),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildTaskDeadlineCard(dynamic task, Color color) {
+  Widget _buildTaskDeadlineCard(dynamic task, Color color, AppLocalizations localizations) {
     final deadline = task.teamDeadline;
     final daysLeft = deadline?.difference(DateTime.now()).inDays ?? 0;
 
@@ -458,12 +477,16 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
           children: [
             const SizedBox(height: 4),
             Text(
-              'Дедлайн: ${deadline?.day}.${deadline?.month}.${deadline?.year}',
+              localizations.taskDeadlineDate(
+                '${deadline?.day}.${deadline?.month}.${deadline?.year}',
+              ),
               style: const TextStyle(fontSize: 12),
             ),
-            if (daysLeft != null && daysLeft != 0)
+            if (daysLeft != 0)
               Text(
-                daysLeft > 0 ? 'Осталось: $daysLeft дней' : 'Просрочено на ${daysLeft.abs()} дней',
+                daysLeft > 0
+                    ? localizations.remainingDays(daysLeft.toString())
+                    : localizations.overdueByDays(daysLeft.abs().toString()),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -484,8 +507,24 @@ class _ProductivityAnalyticsScreenState extends State<ProductivityAnalyticsScree
     );
   }
 
-  String _getDayName(int weekday) {
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    return days[weekday - 1];
+  String _getDayName(int weekday, AppLocalizations localizations) {
+    switch (weekday) {
+      case DateTime.monday:
+        return localizations.weekdayShortMon;
+      case DateTime.tuesday:
+        return localizations.weekdayShortTue;
+      case DateTime.wednesday:
+        return localizations.weekdayShortWed;
+      case DateTime.thursday:
+        return localizations.weekdayShortThu;
+      case DateTime.friday:
+        return localizations.weekdayShortFri;
+      case DateTime.saturday:
+        return localizations.weekdayShortSat;
+      case DateTime.sunday:
+        return localizations.weekdayShortSun;
+      default:
+        return '';
+    }
   }
 }

@@ -29,7 +29,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     selectedDeadline = task.deadline;
     selectedPriority = task.priority;
     commentsControllers = task.comments
-        .map((c) => TextEditingController(text: c))
+        .map((c) => TextEditingController(text: c.text))
         .toList();
   }
 
@@ -131,6 +131,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     final newComments = commentsControllers
         .map((c) => c.text.trim())
         .where((text) => text.isNotEmpty)
+        .map((text) => Comment(text: text, author: widget.taskService.currentUserName))
         .toList();
 
     widget.taskService.tasks[widget.taskIndex].comments.clear();

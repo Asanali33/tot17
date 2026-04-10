@@ -188,7 +188,7 @@ class TaskTile extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Командный: ${task.teamDeadline!.toLocal().toString().split(' ')[0]} ${task.teamDeadline!.toLocal().toString().split(' ')[1].substring(0, 5)}',
+                        '${localizations.teamDeadline}: ${task.teamDeadline!.toLocal().toString().split(' ')[0]} ${task.teamDeadline!.toLocal().toString().split(' ')[1].substring(0, 5)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -211,14 +211,14 @@ class TaskTile extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Время выполнения: ${_formatDuration(task.estimatedDuration!)}',
+                              '${localizations.taskDuration}: ${_formatDuration(task.estimatedDuration!)}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                             if (task.isTimerActive && task.timerStartedAt != null)
                               Text(
-                                'Таймер: ${_getRemainingTime(task)}',
+                                '${localizations.timerLabel}: ${_getRemainingTime(task)}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: colorScheme.tertiary,
                                   fontWeight: FontWeight.bold,
