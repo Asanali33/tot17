@@ -146,215 +146,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () async {
                   Navigator.pop(dialogContext);
 
-                  DateTime? deadline;
-                  final pickedDate = await showDatePicker(
-                    context: parentContext,
-                    initialDate: DateTime.now().add(Duration(days: 1)),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                  );
-
-                  if (pickedDate == null) {
-                    final addWithoutDeadline = await showDialog<bool>(
-                      context: parentContext,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text(localizations.deadline),
-                          content: Text(
-                            localizations.deadlineNotSelectedAddWithoutDeadline,
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: Text(localizations.cancel),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: Text(localizations.save),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-
-                    if (addWithoutDeadline != true) return;
-                  } else {
-                    final pickedTime = await showTimePicker(
-                      context: parentContext,
-                      initialTime: const TimeOfDay(hour: 23, minute: 59),
-                      helpText: localizations.deadline,
-                    );
-
-                    if (pickedTime == null) {
-                      final addWithoutDeadline = await showDialog<bool>(
-                        context: parentContext,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text(localizations.deadline),
-                            content: Text(
-                              localizations.deadlineNotSelectedAddWithoutDeadline,
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: Text(localizations.cancel),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: Text(localizations.save),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      if (addWithoutDeadline != true) return;
-                    } else {
-                      deadline = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
-                    }
-                  }
-
-                  // Диалог для установки времени выполнения
-                  Duration? estimatedDuration;
-                  final pickedDuration = await showDialog<Duration?>(
-                    context: parentContext,
-                    builder: (context) {
-                      int hours = 0;
-                      int minutes = 0;
-                      int seconds = 0;
-
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return AlertDialog(
-                            title: Text(localizations.taskDurationTitle),
-                            content: SingleChildScrollView(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          children: [
-                                            Text(localizations.hours, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                            TextField(
-                                              keyboardType: TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: TextEditingController(text: hours.toString()),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  hours = int.tryParse(value) ?? 0;
-                                                });
-                                              },
-                                              decoration: const InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                contentPadding: EdgeInsets.symmetric(vertical: 8),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Column(
-                                          children: [
-                                            Text(localizations.minutes, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                            TextField(
-                                              keyboardType: TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: TextEditingController(text: minutes.toString()),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  minutes = int.tryParse(value) ?? 0;
-                                                });
-                                              },
-                                              decoration: const InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                contentPadding: EdgeInsets.symmetric(vertical: 8),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Column(
-                                          children: [
-                                            Text(localizations.seconds, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                            TextField(
-                                              keyboardType: TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: TextEditingController(text: seconds.toString()),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  seconds = int.tryParse(value) ?? 0;
-                                                });
-                                              },
-                                              decoration: const InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                contentPadding: EdgeInsets.symmetric(vertical: 8),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    '${localizations.totalDuration('${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}')}',
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(localizations.skip),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  if (hours > 0 || minutes > 0 || seconds > 0) {
-                                    estimatedDuration = Duration(
-                                      hours: hours,
-                                      minutes: minutes,
-                                      seconds: seconds,
-                                    );
-                                    Navigator.pop(context, estimatedDuration);
-                                  } else {
-                                    Navigator.pop(context);
-                                  }
-                                },
-                                child: Text(localizations.setDuration),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-
-                  if (pickedDuration != null) {
-                    estimatedDuration = pickedDuration;
-                  }
-
                   setState(() {
                     selectedCategory = categoryKey;
                     taskService.addTask(
                       controller.text.trim(),
                       category: categoryKey,
-                      deadline: deadline,
-                      estimatedDuration: estimatedDuration,
                     );
                     controller.clear();
+                  });
+
+                  // Открываем полноценный редактор задачи
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    editTaskTitle(taskService.tasks.length - 1);
                   });
                 },
               );
@@ -367,11 +170,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void editTaskTitle(int index) {
     final task = taskService.tasks[index];
-    final controller = TextEditingController(text: task.title);
+    final titleController = TextEditingController(text: task.title);
+    final commentController = TextEditingController();
+    
     DateTime? selectedDeadline = task.deadline;
     DateTime? selectedTeamDeadline = task.teamDeadline;
     int selectedPriority = task.priority;
     String? selectedAssignee = task.assignedTo;
+    String selectedCategory = task.category;
+    String? selectedSubcategory = task.subcategory;
+    
+    int timerHours = task.estimatedDuration?.inHours ?? 0;
+    int timerMinutes = (task.estimatedDuration?.inMinutes ?? 0) % 60;
+    int timerSeconds = (task.estimatedDuration?.inSeconds ?? 0) % 60;
 
     final localizations = AppLocalizations.of(context)!;
 
@@ -380,147 +191,388 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: Text(localizations.editTask),
+            title: Row(
+              children: [
+                Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
+                SizedBox(width: 12),
+                Text(localizations.editTask),
+              ],
+            ),
             content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: controller,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: localizations.newTaskTitle,
-                      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withAlpha(0x40),
-                        ),
-                      ),
-                    ),
-                    autofocus: true,
-                  ),
-                  SizedBox(height: 16),
-                  ListTile(
-                    title: Text(localizations.deadline),
-                    subtitle: selectedDeadline != null
-                        ? Text(
-                            selectedDeadline!.toLocal().toString().split(' ')[0],
-                          )
-                        : Text(localizations.notSetLabel),
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDeadline ?? DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          selectedDeadline = picked;
-                        });
-                      }
-                    },
-                  ),
-                  SizedBox(height: 12),
-                  // Командный дедлайн
-                  ListTile(
-                    title: Text(localizations.teamDeadline),
-                    subtitle: selectedTeamDeadline != null
-                        ? Text(
-                            selectedTeamDeadline!.toLocal().toString().split(' ')[0],
-                          )
-                        : Text(localizations.notSetLabel),
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedTeamDeadline ?? DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          selectedTeamDeadline = picked;
-                        });
-                      }
-                    },
-                  ),
-                  SizedBox(height: 12),
-                  // Назначение исполнителя
-                  if (taskService.teamMembers.isNotEmpty)
-                    DropdownButtonFormField<String>(
-                      value: selectedAssignee,
+              child: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ========== Основная информация ==========
+                    _buildSectionHeader(context, 'ℹ️ Основная информация'),
+                    
+                    // Название задачи
+                    TextField(
+                      controller: titleController,
+                      style: Theme.of(context).textTheme.bodyLarge,
                       decoration: InputDecoration(
-                        labelText: localizations.assign,
+                        labelText: localizations.newTaskTitle,
+                        prefixIcon: Icon(Icons.task),
+                        filled: true,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      items: [
-                        DropdownMenuItem(
-                          value: null,
-                          child: Text(localizations.unassigned),
+                      autofocus: true,
+                    ),
+                    SizedBox(height: 12),
+                    
+                    // Категория
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: localizations.general,
+                        prefixIcon: Icon(Icons.category),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        ...taskService.teamMembers.map((member) {
-                          return DropdownMenuItem(
-                            value: member.name,
-                            child: Text(member.name),
-                          );
-                        }).toList(),
-                      ],
+                      ),
+                      items: taskService.categories.keys.map((categoryKey) {
+                        return DropdownMenuItem(
+                          value: categoryKey,
+                          child: Text(getLocalizedCategory(categoryKey)),
+                        );
+                      }).toList(),
                       onChanged: (value) {
-                        setState(() {
-                          selectedAssignee = value;
-                        });
+                        if (value != null) {
+                          setState(() {
+                            selectedCategory = value;
+                            selectedSubcategory = null;
+                          });
+                        }
                       },
                     ),
-                  SizedBox(height: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(localizations.priorityLabel,
-                          style: Theme.of(context).textTheme.labelMedium),
-                      SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildPriorityButton(
-                            context,
-                            localizations.lowPriority,
-                            1,
-                            selectedPriority,
-                            Colors.blue,
-                            (val) => setState(() => selectedPriority = val),
+                    SizedBox(height: 12),
+                    
+                    // Подкатегория
+                    if (taskService.categories[selectedCategory]?.isNotEmpty ?? false)
+                      DropdownButtonFormField<String>(
+                        value: selectedSubcategory,
+                        decoration: InputDecoration(
+                          labelText: 'Подкатегория',
+                          prefixIcon: Icon(Icons.label),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          _buildPriorityButton(
-                            context,
-                            localizations.mediumPriority,
-                            2,
-                            selectedPriority,
-                            Colors.orange,
-                            (val) => setState(() => selectedPriority = val),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: null,
+                            child: Text(localizations.notSetLabel),
                           ),
-                          _buildPriorityButton(
-                            context,
-                            localizations.highPriority,
-                            3,
-                            selectedPriority,
-                            Colors.red,
-                            (val) => setState(() => selectedPriority = val),
-                          ),
+                          ...taskService.categories[selectedCategory]?.map((subcat) {
+                            return DropdownMenuItem(
+                              value: subcat,
+                              child: Text(getLocalizedSubcategory(subcat)),
+                            );
+                          }).toList() ?? [],
                         ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedSubcategory = value;
+                          });
+                        },
                       ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // ========== Сроки ==========
+                    _buildSectionHeader(context, '📅 Сроки'),
+                    
+                    // Дедлайн
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: Icon(Icons.calendar_today),
+                        title: Text(localizations.deadline),
+                        subtitle: Text(
+                          selectedDeadline != null
+                              ? selectedDeadline!.toLocal().toString().split(' ')[0]
+                              : localizations.notSetLabel,
+                        ),
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDeadline ?? DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(Duration(days: 365)),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              selectedDeadline = picked;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    
+                    // Командный дедлайн
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: Icon(Icons.people),
+                        title: Text(localizations.teamDeadline),
+                        subtitle: Text(
+                          selectedTeamDeadline != null
+                              ? selectedTeamDeadline!.toLocal().toString().split(' ')[0]
+                              : localizations.notSetLabel,
+                        ),
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedTeamDeadline ?? DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(Duration(days: 365)),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              selectedTeamDeadline = picked;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // ========== Приоритет и время ==========
+                    _buildSectionHeader(context, '⚡ Приоритет и время'),
+                    
+                    // Приоритет
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localizations.priorityLabel,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildPriorityButton(
+                              context,
+                              localizations.lowPriority,
+                              1,
+                              selectedPriority,
+                              Colors.blue,
+                              (val) => setState(() => selectedPriority = val),
+                            ),
+                            _buildPriorityButton(
+                              context,
+                              localizations.mediumPriority,
+                              2,
+                              selectedPriority,
+                              Colors.orange,
+                              (val) => setState(() => selectedPriority = val),
+                            ),
+                            _buildPriorityButton(
+                              context,
+                              localizations.highPriority,
+                              3,
+                              selectedPriority,
+                              Colors.red,
+                              (val) => setState(() => selectedPriority = val),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    
+                    // Время выполнения
+                    Text(
+                      localizations.taskDurationTitle,
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: _buildTimeField(
+                            localizations.hours,
+                            timerHours.toString(),
+                            (value) {
+                              setState(() {
+                                timerHours = int.tryParse(value) ?? 0;
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: _buildTimeField(
+                            localizations.minutes,
+                            timerMinutes.toString(),
+                            (value) {
+                              setState(() {
+                                timerMinutes = int.tryParse(value) ?? 0;
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: _buildTimeField(
+                            localizations.seconds,
+                            timerSeconds.toString(),
+                            (value) {
+                              setState(() {
+                                timerSeconds = int.tryParse(value) ?? 0;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    SizedBox(height: 20),
+                    
+                    // ========== Команда ==========
+                    if (taskService.teamMembers.isNotEmpty) ...[
+                      _buildSectionHeader(context, '👥 Команда'),
+                      DropdownButtonFormField<String>(
+                        value: selectedAssignee,
+                        decoration: InputDecoration(
+                          labelText: localizations.assign,
+                          prefixIcon: Icon(Icons.person),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: null,
+                            child: Text(localizations.unassigned),
+                          ),
+                          ...taskService.teamMembers.map((member) {
+                            return DropdownMenuItem(
+                              value: member.name,
+                              child: Text(member.name),
+                            );
+                          }).toList(),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedAssignee = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20),
                     ],
-                  ),
-                ],
+                    
+                    // ========== Комментарии ==========
+                    _buildSectionHeader(context, '💬 Комментарии'),
+                    
+                    if (task.comments.isNotEmpty) ...[
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: task.comments.map((comment) {
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.person_outline, size: 16),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        comment.author ?? 'Anonymous',
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Container(
+                                    padding: EdgeInsets.all(8),
+                                    
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      comment.text,
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                    ],
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: commentController,
+                            minLines: 1,
+                            maxLines: 3,
+                            keyboardType: TextInputType.multiline,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(
+                              hintText: localizations.enterCommentText,
+                              prefixIcon: Icon(Icons.comment),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              if (commentController.text.trim().isNotEmpty) {
+                                taskService.addComment(index, commentController.text.trim());
+                                commentController.clear();
+                                setState(() {});
+                              }
+                            },
+                            icon: Icon(Icons.send),
+                            tooltip: 'Добавить комментарий',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [
@@ -528,21 +580,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(localizations.cancel),
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () {
-                  if (controller.text.trim().isEmpty) return;
-                  setState(() {
-                    taskService.updateTask(
-                      index,
-                      controller.text.trim(),
-                      task.category,
-                      task.subcategory,
-                      selectedDeadline,
-                      teamDeadline: selectedTeamDeadline,
-                      assignedTo: selectedAssignee,
+                  if (titleController.text.trim().isEmpty) return;
+                  
+                  taskService.updateTask(
+                    index,
+                    titleController.text.trim(),
+                    selectedCategory,
+                    selectedSubcategory,
+                    selectedDeadline,
+                    teamDeadline: selectedTeamDeadline,
+                    assignedTo: selectedAssignee,
+                  );
+                  
+                  taskService.updateTaskPriority(index, selectedPriority);
+                  
+                  if (timerHours > 0 || timerMinutes > 0 || timerSeconds > 0) {
+                    final duration = Duration(
+                      hours: timerHours,
+                      minutes: timerMinutes,
+                      seconds: timerSeconds,
                     );
-                    taskService.updateTaskPriority(index, selectedPriority);
-                  });
+                    taskService.setTaskDuration(index, duration);
+                  }
+                  
+                  setState(() {});
                   Navigator.pop(context);
                 },
                 child: Text(localizations.save),
@@ -551,6 +614,48 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeField(
+    String label,
+    String value,
+    Function(String) onChanged,
+  ) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        TextField(
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          controller: TextEditingController(text: value),
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            contentPadding: EdgeInsets.symmetric(vertical: 8),
+          ),
+        ),
+      ],
     );
   }
 
