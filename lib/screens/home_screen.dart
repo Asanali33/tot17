@@ -27,6 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     taskService = widget.taskService;
+    taskService.loadTasks().then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     searchController.addListener(() {
       setState(() {});
     });

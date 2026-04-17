@@ -2,11 +2,17 @@ import '../models/task.dart';
 import '../models/team_member.dart';
 import '../models/role.dart';
 import '../models/productivity_stats.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TaskService {
-  static const String baseUrl = 'http://localhost:8080';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:8080';
+    }
+    return 'http://10.0.2.2:8080';
+  }
   List<Task> tasks = [];
   int experience = 0;
   int completedTotal = 0;
@@ -31,7 +37,6 @@ class TaskService {
   TaskService() {
     productivityStats = ProductivityStats();
     _initializeProductivityStats();
-    loadTasks(); // Load tasks from backend
   }
 
   void _initializeProductivityStats() {
@@ -639,63 +644,110 @@ class TaskService {
 
   Future<void> loadTasks() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/tasks'));
+      print('🔵 Loading tasks from: $baseUrl/tasks');
+      final response = await http.get(Uri.parse('$baseUrl/tasks')).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout connecting to backend');
+          throw Exception('Connection timeout');
+        },
+      );
+      print('📡 Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
+        print('✅ Tasks loaded successfully');
         final List<dynamic> jsonList = jsonDecode(response.body);
+        print('📊 Loaded ${jsonList.length} tasks');
         tasks = jsonList.map((json) => Task.fromJson(json)).toList();
       } else {
-        print('Failed to load tasks: ${response.statusCode}');
+        print('❌ Failed to load tasks: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
     } catch (e) {
-      print('Error loading tasks: $e');
+      print('❌ Error loading tasks: $e');
+      print('Stack trace: $e');
     }
   }
 
   Future<void> saveTask(Task task) async {
     try {
+      print('🔵 Saving task to: $baseUrl/tasks');
       final json = task.toJson();
+      print('📤 Request body: ${jsonEncode(json)}');
       final response = await http.post(
         Uri.parse('$baseUrl/tasks'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(json),
+      ).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout saving task');
+          throw Exception('Connection timeout');
+        },
       );
+      print('📡 Response status: ${response.statusCode}');
       if (response.statusCode == 201) {
+        print('✅ Task saved successfully');
         final createdJson = jsonDecode(response.body);
-        task.id = createdJson['_id'];
+        task.id = createdJson['_id']?.toString();
         tasks.add(task);
+        print('✅ Task ID: ${task.id}');
       } else {
-        print('Failed to save task: ${response.statusCode}');
+        print('❌ Failed to save task: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
     } catch (e) {
-      print('Error saving task: $e');
+      print('❌ Error saving task: $e');
+      print('Stack trace: $e');
     }
   }
 
   Future<void> updateTaskOnServer(Task task) async {
     if (task.id == null) return;
     try {
+      print('🔵 Updating task: $baseUrl/tasks/${task.id}');
       final json = task.toJson();
       final response = await http.put(
         Uri.parse('$baseUrl/tasks/${task.id}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(json),
+      ).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout updating task');
+          throw Exception('Connection timeout');
+        },
       );
+      print('📡 Response status: ${response.statusCode}');
       if (response.statusCode != 200) {
-        print('Failed to update task: ${response.statusCode}');
+        print('❌ Failed to update task: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      } else {
+        print('✅ Task updated successfully');
       }
     } catch (e) {
-      print('Error updating task: $e');
+      print('❌ Error updating task: $e');
     }
   }
 
   Future<void> deleteTaskFromServer(String taskId) async {
     try {
-      final response = await http.delete(Uri.parse('$baseUrl/tasks/$taskId'));
+      print('🔵 Deleting task: $baseUrl/tasks/$taskId');
+      final response = await http.delete(Uri.parse('$baseUrl/tasks/$taskId')).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout deleting task');
+          throw Exception('Connection timeout');
+        },
+      );
+      print('📡 Response status: ${response.statusCode}');
       if (response.statusCode != 200) {
-        print('Failed to delete task: ${response.statusCode}');
+        print('❌ Failed to delete task: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      } else {
+        print('✅ Task deleted successfully');
       }
     } catch (e) {
-      print('Error deleting task: $e');
+      print('❌ Error deleting task: $e');
     }
   }
 }
