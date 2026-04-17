@@ -8,23 +8,23 @@ class Task {
   DateTime? deadline;
   DateTime? teamDeadline;
   List<Comment> comments;
-  int priority; // 1 = низкий, 2 = средний, 3 = высокий
+  int priority;
   DateTime createdAt;
   DateTime? completedAt;
-  String? assignedTo; // кому назначена задача (роль или имя)
+  String? assignedTo;
   List<TaskChange> changesHistory;
-  TaskStatus status; // новый статус задачи
-  String? assignedRole; // роль, ответственная за задачу
-  Duration? estimatedDuration; // время выполнения задачи
-  DateTime? timerStartedAt; // время начала таймера
-  bool isTimerActive; // активен ли таймер
+  TaskStatus status;
+  String? assignedRole;
+  Duration? estimatedDuration;
+  DateTime? timerStartedAt;
+  bool isTimerActive;
 
   Task({
     this.id,
     required this.title,
     this.isDone = false,
     this.xpGranted = false,
-    this.category = 'Общие',
+    this.category = 'general',
     this.subcategory,
     this.deadline,
     this.teamDeadline,
@@ -43,6 +43,7 @@ class Task {
 
   Map<String, dynamic> toJson() {
     return {
+      '_id': id,
       'title': title,
       'isDone': isDone,
       'xpGranted': xpGranted,
@@ -99,13 +100,13 @@ class Task {
 }
 
 enum TaskStatus {
-  todo('К выполнению'),
-  inProgress('В работе'),
-  review('На проверке'),
-  done('Выполнено');
+  todo('todo'),
+  inProgress('inProgress'),
+  review('review'),
+  done('done');
 
-  const TaskStatus(this.displayName);
-  final String displayName;
+  const TaskStatus(this.name);
+  final String name;
 }
 
 class Comment {
@@ -120,20 +121,6 @@ class Comment {
     DateTime? createdAt,
     this.isEdited = false,
   }) : createdAt = createdAt ?? DateTime.now();
-
-  Comment copyWith({
-    String? text,
-    String? author,
-    DateTime? createdAt,
-    bool? isEdited,
-  }) {
-    return Comment(
-      text: text ?? this.text,
-      author: author ?? this.author,
-      createdAt: createdAt ?? this.createdAt,
-      isEdited: isEdited ?? this.isEdited,
-    );
-  }
 
   Map<String, dynamic> toJson() {
     return {

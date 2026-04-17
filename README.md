@@ -1,6 +1,6 @@
 # TaskFlow - Productivity App
 
-A comprehensive Flutter task management application with productivity analytics and multi-language support.
+A comprehensive Flutter task management application with productivity analytics, multi-language support, and backend storage.
 
 ## 🚀 Quick Start - Small Phone Cold Boost Emulator
 
@@ -11,6 +11,7 @@ This project is specifically configured to run on the **Small Phone Cold Boost**
 - Android Studio with Android SDK 36.1.0
 - Android NDK 28.2.13676358
 - Android Emulator
+- MongoDB (local or Atlas)
 
 ### 🔧 Android SDK/NDK Verification
 
@@ -46,6 +47,27 @@ This script will:
    - 2 CPU cores
    - SwiftShader GPU acceleration
    - 1080x2400 resolution
+
+### 🗄️ Backend Setup
+
+TaskFlow now includes a backend for persistent task storage using MongoDB.
+
+#### Prerequisites
+- MongoDB installed locally or MongoDB Atlas account
+
+#### Start Backend
+```bash
+# Windows
+backend\start_backend.bat
+```
+
+This will start the Dart backend server on http://localhost:8080
+
+#### Backend Features
+- RESTful API for task CRUD operations
+- MongoDB integration for data persistence
+- CORS enabled for Flutter app communication
+- Automatic task synchronization
 
 ### 🛠️ Development in VS Code
 
