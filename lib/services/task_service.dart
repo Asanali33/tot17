@@ -9,9 +9,9 @@ import 'dart:convert';
 class TaskService {
   static String get baseUrl {
     if (kIsWeb) {
-      return 'http://localhost:8080';
+      return 'http://localhost:3000/api';
     }
-    return 'http://10.0.2.2:8080';
+    return 'http://10.0.2.2:3000/api';
   }
   List<Task> tasks = [];
   int experience = 0;
@@ -57,7 +57,7 @@ class TaskService {
     String? assignedTo,
     String? assignedRole,
     Duration? estimatedDuration,
-  }) async {
+  }) {
     final task = Task(
       title: title,
       category: category,
@@ -70,8 +70,8 @@ class TaskService {
       estimatedDuration: estimatedDuration,
     );
     
-    // Save to server first
-    await saveTask(task);
+    // Add to local list immediately (optimistic update)
+    tasks.add(task);
     
     // Update local stats
     final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -89,6 +89,9 @@ class TaskService {
       changeHistory['task_${task.id}'] = [];
       _recordChangeById(task.id!, 'Создание', '', title);
     }
+    
+    // Save to server asynchronously in the background
+    saveTask(task);
   }
 
   void toggleTask(int index) async {
@@ -688,16 +691,20 @@ class TaskService {
       if (response.statusCode == 201) {
         print('✅ Task saved successfully');
         final createdJson = jsonDecode(response.body);
-        task.id = createdJson['_id']?.toString();
-        tasks.add(task);
+        // MongoDB returns _id, some servers might return id
+        task.id = createdJson['_id']?.toString() ?? createdJson['id']?.toString();
         print('✅ Task ID: ${task.id}');
       } else {
         print('❌ Failed to save task: ${response.statusCode}');
         print('Response body: ${response.body}');
+        // Remove from local list if save failed
+        tasks.removeWhere((t) => t == task);
       }
     } catch (e) {
       print('❌ Error saving task: $e');
       print('Stack trace: $e');
+      // Remove from local list if save failed
+      tasks.removeWhere((t) => t == task);
     }
   }
 
