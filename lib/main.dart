@@ -4,7 +4,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/main_screen.dart';
+import 'screens/login_screen.dart';
 import 'providers/locale_provider.dart';
+import 'providers/auth_provider.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
@@ -12,6 +14,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const TaskFlowApp(),
     ),
@@ -33,6 +36,14 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
   void initState() {
     super.initState();
     _loadTheme();
+    _checkAuthStatus();
+  }
+
+  /// Проверка статуса аутентификации при запуске
+  Future<void> _checkAuthStatus() async {
+    if (mounted) {
+      await Provider.of<AuthProvider>(context, listen: false).checkLoginStatus();
+    }
   }
 
   /// read stored preference and update state
@@ -176,10 +187,25 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
             Locale('en'),
             Locale('ru'),
           ],
-          home: MainScreen(
-            onToggleTheme: _toggleTheme,
-            isDarkMode: _isDarkMode,
+          home: Consumer<AuthProvider>(
+            builder: (context, authProvider, _) {
+              if (authProvider.isLoggedIn) {
+                return MainScreen(
+                  onToggleTheme: _toggleTheme,
+                  isDarkMode: _isDarkMode,
+                );
+              } else {
+                return LoginScreen();
+              }
+            },
           ),
+          routes: {
+            '/home': (context) => MainScreen(
+              onToggleTheme: _toggleTheme,
+              isDarkMode: _isDarkMode,
+            ),
+            '/login': (context) => LoginScreen(),
+          },
         );
       },
     );
