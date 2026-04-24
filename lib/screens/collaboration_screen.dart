@@ -39,7 +39,7 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
     super.dispose();
   }
 
-  void _addTeamMember() {
+  Future<void> _addTeamMember() async {
     final name = _memberNameController.text.trim();
     final role = _selectedRole;
     final localizations = AppLocalizations.of(context)!;
@@ -57,8 +57,9 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
       role: role,
     );
 
+    await widget.taskService.addTeamMember(member);
+
     setState(() {
-      widget.taskService.addTeamMember(member);
       _memberNameController.clear();
       _selectedRole = null;
     });
@@ -68,10 +69,9 @@ class _CollaborationScreenState extends State<CollaborationScreen> {
     );
   }
 
-  void _removeTeamMember(String memberId) {
-    setState(() {
-      widget.taskService.removeTeamMember(memberId);
-    });
+  Future<void> _removeTeamMember(String memberId) async {
+    await widget.taskService.removeTeamMember(memberId);
+    setState(() {});
   }
 
   @override

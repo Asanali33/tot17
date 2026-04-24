@@ -6,7 +6,6 @@ class TaskTile extends StatelessWidget {
   final Task task;
   final VoidCallback onTap;
   final VoidCallback onDelete;
-  final VoidCallback? onEditTitle;
   final VoidCallback? onEditCategory;
   final VoidCallback? onAddComment;
 
@@ -15,7 +14,6 @@ class TaskTile extends StatelessWidget {
     required this.task,
     required this.onTap,
     required this.onDelete,
-    this.onEditTitle,
     this.onEditCategory,
     this.onAddComment,
   });
@@ -91,7 +89,6 @@ class TaskTile extends StatelessWidget {
               ),
             ),
             onTap: onTap,
-            onLongPress: onEditTitle,
             trailing: IconButton(
               icon: Icon(Icons.delete, color: colorScheme.error),
               onPressed: onDelete,

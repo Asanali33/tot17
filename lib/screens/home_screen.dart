@@ -33,6 +33,11 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {});
       }
     });
+    taskService.loadTeamMembers().then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     searchController.addListener(() {
       setState(() {});
     });
@@ -965,7 +970,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       taskService.toggleTask(index);
                                     });
                                   },
-                                  onEditTitle: () => editTaskTitle(index),
                                   onDelete: () {
                                     setState(() {
                                       taskService.deleteTask(index);

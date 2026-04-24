@@ -312,14 +312,16 @@ class TaskService {
 
   // ===================== КОЛЛАБОРАЦИЯ =====================
 
-  void addTeamMember(TeamMember member) {
+  Future<void> addTeamMember(TeamMember member) async {
     if (!teamMembers.any((m) => m.id == member.id)) {
       teamMembers.add(member);
+      await saveTeamMember(member);
     }
   }
 
-  void removeTeamMember(String memberId) {
+  Future<void> removeTeamMember(String memberId) async {
     teamMembers.removeWhere((m) => m.id == memberId);
+    await deleteTeamMemberFromServer(memberId);
   }
 
   void setCurrentUser(String userId, String userName) {
@@ -769,6 +771,110 @@ class TaskService {
       }
     } catch (e) {
       print('❌ Error deleting task: $e');
+    }
+  }
+
+  // ===================== BACKEND METHODS FOR TEAM MEMBERS =====================
+
+  Future<void> loadTeamMembers() async {
+    try {
+      print('🔵 Loading team members from: $baseUrl/team-members');
+      final response = await http.get(Uri.parse('$baseUrl/team-members')).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout connecting to backend for team members');
+          throw Exception('Connection timeout');
+        },
+      );
+      print('📡 Team members response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        print('✅ Team members loaded successfully');
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        print('📊 Loaded ${jsonList.length} team members');
+        teamMembers = jsonList.map((json) => TeamMember.fromJson(json)).toList();
+      } else {
+        print('❌ Failed to load team members: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Error loading team members: $e');
+    }
+  }
+
+  Future<void> saveTeamMember(TeamMember member) async {
+    try {
+      print('🔵 Saving team member to: $baseUrl/team-members');
+      final json = member.toJson();
+      print('📤 Request body: ${jsonEncode(json)}');
+      final response = await http.post(
+        Uri.parse('$baseUrl/team-members'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(json),
+      ).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout saving team member');
+          throw Exception('Connection timeout');
+        },
+      );
+      print('📡 Response status: ${response.statusCode}');
+      if (response.statusCode == 201) {
+        print('✅ Team member saved successfully');
+      } else {
+        print('❌ Failed to save team member: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Error saving team member: $e');
+    }
+  }
+
+  Future<void> updateTeamMemberOnServer(TeamMember member) async {
+    try {
+      print('🔵 Updating team member: $baseUrl/team-members/${member.id}');
+      final json = member.toJson();
+      final response = await http.put(
+        Uri.parse('$baseUrl/team-members/${member.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(json),
+      ).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout updating team member');
+          throw Exception('Connection timeout');
+        },
+      );
+      print('📡 Response status: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        print('❌ Failed to update team member: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      } else {
+        print('✅ Team member updated successfully');
+      }
+    } catch (e) {
+      print('❌ Error updating team member: $e');
+    }
+  }
+
+  Future<void> deleteTeamMemberFromServer(String memberId) async {
+    try {
+      print('🔵 Deleting team member: $baseUrl/team-members/$memberId');
+      final response = await http.delete(Uri.parse('$baseUrl/team-members/$memberId')).timeout(
+        Duration(seconds: 5),
+        onTimeout: () {
+          print('❌ Timeout deleting team member');
+          throw Exception('Connection timeout');
+        },
+      );
+      print('📡 Response status: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        print('❌ Failed to delete team member: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      } else {
+        print('✅ Team member deleted successfully');
+      }
+    } catch (e) {
+      print('❌ Error deleting team member: $e');
     }
   }
 }

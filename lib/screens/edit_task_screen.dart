@@ -37,7 +37,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     selectedTeamDeadline = task.teamDeadline;
     selectedPriority = task.priority;
     selectedAssignedTo = task.assignedTo;
+    if (selectedAssignedTo != null &&
+        !widget.taskService.teamMembers.any((m) => m.name == selectedAssignedTo)) {
+      selectedAssignedTo = null;
+    }
+
     selectedAssignedRole = task.assignedRole;
+    if (selectedAssignedRole != null &&
+        !Role.predefinedRoles.any((r) => r.name == selectedAssignedRole)) {
+      selectedAssignedRole = null;
+    }
+
     selectedStatus = task.status;
     
     // Инициализация продолжительности

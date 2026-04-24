@@ -1,22 +1,17 @@
-# TODO: Fix collaborator not saving after screen switch
+# TODO: Persist Collaborators to Database
 
-## Problem
-When adding a task and assigning a collaborator, the collaborator is not saved after switching screens (e.g., going to Stats tab and back to Home).
+## Backend
+- [x] Create `backend/models/TeamMember.js`
+- [x] Create `backend/routes/teamMembers.js`
+- [x] Register route in `backend/server.js`
 
-## Root Cause
-- `addTask()` in `task_service.dart` was synchronous and called `saveTask()` without `await`
-- The task didn't have a server ID when the edit dialog opened
-- `updateTaskOnServer()` returned immediately if `task.id == null`
-- Switching tabs recreated HomeScreen and called `loadTasks()`, overwriting local unsaved changes
+## Frontend
+- [x] Update `lib/models/team_member.dart` (add toJson/fromJson)
+- [x] Update `lib/services/task_service.dart` (add backend CRUD for team members)
+- [x] Update `lib/screens/home_screen.dart` (load team members on init)
+- [x] Update `lib/screens/collaboration_screen.dart` (async add/remove with backend calls)
 
-## Steps to Fix
-
-1. [x] **task_service.dart** — Make `addTask` async and await `saveTask`
-2. [x] **task_service.dart** — Make `updateTask` return `Future<void>` instead of `void`
-3. [x] **home_screen.dart** — Make add flow async, await addTask before opening editor
-4. [x] **home_screen.dart** — Await updateTask in edit dialog save button
-5. [x] **edit_task_screen.dart** — Make _saveTask async and call updateTaskOnServer
-
-## Testing
-- Add a task, assign collaborator, switch to Stats, return to Home → collaborator should persist
+## Follow-up
+- [ ] Restart backend
+- [ ] Test persistence
 

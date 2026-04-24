@@ -40,4 +40,47 @@ class TeamMember {
     avatarUrl: avatarUrl,
     isActive: isActive,
   );
+
+  Map<String, dynamic> toJson() {
+    return {
+      'memberId': id,
+      'name': name,
+      'role': {
+        'name': role.name,
+        'description': role.description,
+        'permissions': role.permissions,
+      },
+      'avatarUrl': avatarUrl,
+      'isActive': isActive,
+      'skills': skills,
+      'joinedAt': joinedAt.toIso8601String(),
+    };
+  }
+
+  factory TeamMember.fromJson(Map<String, dynamic> json) {
+    final roleJson = json['role'] ?? {};
+    final role = Role(
+      name: roleJson['name'] ?? 'Разработчик',
+      description: roleJson['description'] ?? '',
+      permissions: (roleJson['permissions'] as List<dynamic>?)
+              ?.map((p) => p.toString())
+              .toList() ??
+          [],
+    );
+
+    return TeamMember(
+      id: json['memberId']?.toString() ?? json['_id']?.toString() ?? '',
+      name: json['name'] ?? '',
+      role: role,
+      avatarUrl: json['avatarUrl'],
+      isActive: json['isActive'] ?? true,
+      skills: (json['skills'] as List<dynamic>?)
+              ?.map((s) => s.toString())
+              .toList() ??
+          [],
+      joinedAt: json['joinedAt'] != null
+          ? DateTime.parse(json['joinedAt'])
+          : DateTime.now(),
+    );
+  }
 }
