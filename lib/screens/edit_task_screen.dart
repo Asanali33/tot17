@@ -170,26 +170,26 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     });
   }
 
-  void _saveTask() {
+  Future<void> _saveTask() async {
     final newTitle = titleController.text.trim();
     if (newTitle.isEmpty) return;
 
-    widget.taskService.tasks[widget.taskIndex].title = newTitle;
-    widget.taskService.tasks[widget.taskIndex].deadline = selectedDeadline;
-    widget.taskService.tasks[widget.taskIndex].teamDeadline = selectedTeamDeadline;
-    widget.taskService.tasks[widget.taskIndex].priority = selectedPriority;
-    widget.taskService.tasks[widget.taskIndex].assignedTo = selectedAssignedTo;
-    widget.taskService.tasks[widget.taskIndex].assignedRole = selectedAssignedRole;
-    widget.taskService.tasks[widget.taskIndex].status = selectedStatus;
+    final task = widget.taskService.tasks[widget.taskIndex];
+    task.title = newTitle;
+    task.deadline = selectedDeadline;
+    task.teamDeadline = selectedTeamDeadline;
+    task.priority = selectedPriority;
+    task.assignedTo = selectedAssignedTo;
+    task.assignedRole = selectedAssignedRole;
+    task.status = selectedStatus;
 
     // Сохраняем продолжительность
     if (estimatedHours != null || estimatedMinutes != null) {
       final hours = estimatedHours ?? 0;
       final minutes = estimatedMinutes ?? 0;
-      widget.taskService.tasks[widget.taskIndex].estimatedDuration =
-          Duration(hours: hours, minutes: minutes);
+      task.estimatedDuration = Duration(hours: hours, minutes: minutes);
     } else {
-      widget.taskService.tasks[widget.taskIndex].estimatedDuration = null;
+      task.estimatedDuration = null;
     }
 
     final newComments = commentsControllers
@@ -198,8 +198,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         .map((text) => Comment(text: text, author: widget.taskService.currentUserName))
         .toList();
 
-    widget.taskService.tasks[widget.taskIndex].comments.clear();
-    widget.taskService.tasks[widget.taskIndex].comments.addAll(newComments);
+    task.comments.clear();
+    task.comments.addAll(newComments);
+
+    // Синхронизируем с сервером
+    await widget.taskService.updateTaskOnServer(task);
 
     Navigator.of(context).pop(true);
   }
@@ -247,7 +250,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         title: Text(localizations.editTask),
         actions: [
           TextButton(
-            onPressed: _saveTask,
+            onPressed: () { _saveTask(); },
             child: Text(
               localizations.save,
               style: TextStyle(color: colorScheme.onPrimary),
@@ -587,7 +590,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.save),
                 label: Text(localizations.save),
-                onPressed: _saveTask,
+                onPressed: () { _saveTask(); },
               ),
             ),
           ],

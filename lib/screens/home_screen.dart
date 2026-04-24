@@ -149,22 +149,21 @@ class _HomeScreenState extends State<HomeScreen> {
             children: taskService.categories.keys.map((categoryKey) {
               return ListTile(
                 title: Text(getLocalizedCategory(categoryKey)),
-                onTap: () async {
+              onTap: () async {
                   Navigator.pop(dialogContext);
 
-                  setState(() {
-                    selectedCategory = categoryKey;
-                    taskService.addTask(
-                      controller.text.trim(),
-                      category: categoryKey,
-                    );
-                    controller.clear();
-                  });
+                  selectedCategory = categoryKey;
+                  await taskService.addTask(
+                    controller.text.trim(),
+                    category: categoryKey,
+                  );
+                  controller.clear();
 
-                  // Открываем полноценный редактор задачи
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    setState(() {});
+                    // Открываем полноценный редактор задачи
                     editTaskTitle(taskService.tasks.length - 1);
-                  });
+                  }
                 },
               );
             }).toList(),
@@ -587,10 +586,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(localizations.cancel),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (titleController.text.trim().isEmpty) return;
                   
-                  taskService.updateTask(
+                  await taskService.updateTask(
                     index,
                     titleController.text.trim(),
                     selectedCategory,

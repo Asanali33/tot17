@@ -62,7 +62,7 @@ class TaskService {
     );
   }
 
-  void addTask(
+  Future<void> addTask(
     String title, {
     String category = 'Общие',
     String? subcategory,
@@ -71,7 +71,7 @@ class TaskService {
     String? assignedTo,
     String? assignedRole,
     Duration? estimatedDuration,
-  }) {
+  }) async {
     final task = Task(
       title: title,
       category: category,
@@ -98,14 +98,14 @@ class TaskService {
     }
     productivityStats.dailyStats[today]?.totalTasks += 1;
     
-    // Initialize change history
+    // Save to server and wait for ID before allowing further edits
+    await saveTask(task);
+    
+    // Initialize change history after task has an ID
     if (task.id != null) {
       changeHistory['task_${task.id}'] = [];
       _recordChangeById(task.id!, 'Создание', '', title);
     }
-    
-    // Save to server asynchronously in the background
-    saveTask(task);
   }
 
   void toggleTask(int index) async {
@@ -205,7 +205,7 @@ class TaskService {
     tasks.removeAt(index);
   }
 
-  void updateTask(
+  Future<void> updateTask(
     int index,
     String title,
     String category,
