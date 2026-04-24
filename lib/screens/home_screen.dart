@@ -4,6 +4,7 @@ import '../services/task_service.dart';
 import '../models/task.dart';
 import '../widgets/task_tile.dart';
 import 'subcategories_screen.dart';
+import 'edit_task_screen.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -978,7 +979,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            SubcategoriesScreen(
+                                            EditTaskScreen(
                                           taskService: taskService,
                                           taskIndex: index,
                                         ),

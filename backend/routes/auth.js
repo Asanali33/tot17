@@ -113,7 +113,7 @@ router.post('/login', async(req, res) => {
 // GET /api/auth/verify - Проверка токена
 router.get('/verify', async(req, res) => {
     try {
-        const token = req.headers.authorization ? .split(' ')[1];
+        const token = req.headers.authorization?.split(' ')[1];
 
         if (!token) {
             return res.status(401).json({ error: 'Токен отсутствует' });

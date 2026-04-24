@@ -1,9 +1,27 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static String get baseUrl {
+    // Для Web используем localhost
+    if (kIsWeb) {
+      return 'http://localhost:3000/api';
+    }
+    // Для Android эмулятора используем 10.0.2.2 вместо localhost
+    // Для физического устройства используем localhost
+    try {
+      if (Platform.isAndroid) {
+        return 'http://10.0.2.2:3000/api';
+      } else if (Platform.isIOS) {
+        return 'http://localhost:3000/api';
+      }
+    } catch (e) {
+      // Если Platform недоступна, используем localhost по умолчанию
+      return 'http://localhost:3000/api';
+    }
     return 'http://localhost:3000/api';
   }
 
@@ -15,6 +33,7 @@ class AuthService {
   }) async {
     try {
       print('🔵 Регистрация пользователя: $username');
+      print('📍 Подключение к: $baseUrl/auth/register');
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register'),
         headers: {'Content-Type': 'application/json'},
