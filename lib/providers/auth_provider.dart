@@ -5,11 +5,13 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isLoading = false;
   String? _currentUsername;
+  String? _currentUserId;
   String? _errorMessage;
 
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
   String? get currentUsername => _currentUsername;
+  String? get currentUserId => _currentUserId;
   String? get errorMessage => _errorMessage;
 
   // Инициализация при запуске приложения
@@ -59,6 +61,7 @@ class AuthProvider extends ChangeNotifier {
 
       _isLoggedIn = true;
       _currentUsername = username;
+      _currentUserId = result['user']?['id']?.toString();
       _isLoading = false;
       notifyListeners();
       return true;
@@ -100,6 +103,7 @@ class AuthProvider extends ChangeNotifier {
 
       _isLoggedIn = true;
       _currentUsername = username;
+      _currentUserId = result['user']?['id']?.toString();
       _isLoading = false;
       notifyListeners();
       return true;
@@ -115,6 +119,7 @@ class AuthProvider extends ChangeNotifier {
     await AuthService.logout();
     _isLoggedIn = false;
     _currentUsername = null;
+    _currentUserId = null;
     _errorMessage = null;
     notifyListeners();
   }

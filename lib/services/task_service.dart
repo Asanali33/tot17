@@ -2,6 +2,7 @@ import '../models/task.dart';
 import '../models/team_member.dart';
 import '../models/role.dart';
 import '../models/productivity_stats.dart';
+import 'auth_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -36,6 +37,14 @@ class TaskService {
   List<TeamMember> teamMembers = [];
   String? currentUserId;
   String? currentUserName;
+
+  Future<Map<String, String>> _authHeaders() async {
+    final token = await AuthService.getToken();
+    return {
+      'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+  }
 
   // Аналитика
   late ProductivityStats productivityStats;
@@ -663,8 +672,9 @@ class TaskService {
 
   Future<void> loadTasks() async {
     try {
+      final headers = await _authHeaders();
       print('🔵 Loading tasks from: $baseUrl/tasks');
-      final response = await http.get(Uri.parse('$baseUrl/tasks')).timeout(
+      final response = await http.get(Uri.parse('$baseUrl/tasks'), headers: headers).timeout(
         Duration(seconds: 5),
         onTimeout: () {
           print('❌ Timeout connecting to backend');
@@ -692,9 +702,10 @@ class TaskService {
       print('🔵 Saving task to: $baseUrl/tasks');
       final json = task.toJson();
       print('📤 Request body: ${jsonEncode(json)}');
+      final headers = await _authHeaders();
       final response = await http.post(
         Uri.parse('$baseUrl/tasks'),
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode(json),
       ).timeout(
         Duration(seconds: 5),
@@ -729,9 +740,10 @@ class TaskService {
     try {
       print('🔵 Updating task: $baseUrl/tasks/${task.id}');
       final json = task.toJson();
+      final headers = await _authHeaders();
       final response = await http.put(
         Uri.parse('$baseUrl/tasks/${task.id}'),
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode(json),
       ).timeout(
         Duration(seconds: 5),
@@ -755,7 +767,11 @@ class TaskService {
   Future<void> deleteTaskFromServer(String taskId) async {
     try {
       print('🔵 Deleting task: $baseUrl/tasks/$taskId');
-      final response = await http.delete(Uri.parse('$baseUrl/tasks/$taskId')).timeout(
+      final headers = await _authHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/tasks/$taskId'),
+        headers: headers,
+      ).timeout(
         Duration(seconds: 5),
         onTimeout: () {
           print('❌ Timeout deleting task');

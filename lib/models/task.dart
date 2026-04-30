@@ -1,5 +1,6 @@
 class Task {
   String? id;
+  String? userId;
   String title;
   bool isDone;
   bool xpGranted;
@@ -21,6 +22,7 @@ class Task {
 
   Task({
     this.id,
+    this.userId,
     required this.title,
     this.isDone = false,
     this.xpGranted = false,
@@ -43,6 +45,7 @@ class Task {
 
   Map<String, dynamic> toJson() {
     return {
+      if (userId != null) 'userId': userId,
       'title': title,
       'isDone': isDone,
       'xpGranted': xpGranted,
@@ -67,6 +70,7 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['_id']?.toString(),
+      userId: json['userId']?.toString(),
       title: json['title'],
       isDone: json['isDone'] ?? false,
       xpGranted: json['xpGranted'] ?? false,
