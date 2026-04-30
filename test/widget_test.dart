@@ -11,14 +11,18 @@ import 'package:provider/provider.dart';
 
 import 'package:taskflow/main.dart';
 import 'package:taskflow/providers/locale_provider.dart';
+import 'package:taskflow/services/task_service.dart';
 
 void main() {
   testWidgets('App loads with provider', (WidgetTester tester) async {
+    // Создаём экземпляр TaskService для тестирования
+    final taskService = TaskService();
+
     // Build our app with required providers and trigger a frame.
     await tester.pumpWidget(
       MultiProvider(
         providers: [ChangeNotifierProvider(create: (_) => LocaleProvider())],
-        child: const TaskFlowApp(),
+        child: TaskFlowApp(taskService: taskService),
       ),
     );
 

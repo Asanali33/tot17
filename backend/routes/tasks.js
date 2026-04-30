@@ -7,7 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key_change_in_env';
 
 const authMiddleware = (req, res, next) => {
     try {
-        const token = req.headers.authorization ? .split(' ')[1];
+        const authHeader = req.headers.authorization;
+        const token = authHeader ? authHeader.split(' ')[1] : null;
         if (!token) {
             return res.status(401).json({ error: 'Токен отсутствует' });
         }

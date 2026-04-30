@@ -11,11 +11,13 @@ import '../l10n/app_localizations.dart';
 class MainScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
   final bool isDarkMode;
+  final TaskService taskService;
 
   const MainScreen({
     super.key,
     required this.onToggleTheme,
     required this.isDarkMode,
+    required this.taskService,
   });
 
   @override
@@ -24,7 +26,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  final TaskService taskService = TaskService();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -34,15 +35,15 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> _buildScreens() {
     return [
-      HomeScreen(taskService: taskService),
-      StatsScreen(taskService: taskService),
-      CollaborationScreen(taskService: taskService),
-      ProductivityAnalyticsScreen(taskService: taskService),
-      AIAssistantScreen(taskService: taskService),
+      HomeScreen(taskService: widget.taskService),
+      StatsScreen(taskService: widget.taskService),
+      CollaborationScreen(taskService: widget.taskService),
+      ProductivityAnalyticsScreen(taskService: widget.taskService),
+      AIAssistantScreen(taskService: widget.taskService),
       SettingsScreen(
         onToggleTheme: widget.onToggleTheme,
         isDarkMode: widget.isDarkMode,
-        taskService: taskService,
+        taskService: widget.taskService,
       ),
     ];
   }

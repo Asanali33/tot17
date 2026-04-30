@@ -28,6 +28,7 @@ class TaskService {
     }
     return 'http://localhost:3000/api';
   }
+
   List<Task> tasks = [];
   int experience = 0;
   int completedTotal = 0;
@@ -63,7 +64,11 @@ class TaskService {
   }
 
   void _initializeProductivityStats() {
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     productivityStats.dailyStats[today] = DailyStats(
       date: today,
       tasksCompleted: 0,
@@ -92,12 +97,16 @@ class TaskService {
       comments: [],
       estimatedDuration: estimatedDuration,
     );
-    
+
     // Add to local list immediately (optimistic update)
     tasks.add(task);
-    
+
     // Update local stats
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     if (!productivityStats.dailyStats.containsKey(today)) {
       productivityStats.dailyStats[today] = DailyStats(
         date: today,
@@ -106,10 +115,10 @@ class TaskService {
       );
     }
     productivityStats.dailyStats[today]?.totalTasks += 1;
-    
+
     // Save to server and wait for ID before allowing further edits
     await saveTask(task);
-    
+
     // Initialize change history after task has an ID
     if (task.id != null) {
       changeHistory['task_${task.id}'] = [];
@@ -122,11 +131,15 @@ class TaskService {
     final nowDone = !task.isDone;
     task.isDone = nowDone;
     task.status = nowDone ? TaskStatus.done : TaskStatus.todo;
-    
+
     // Update on server
     await updateTaskOnServer(task);
-    
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     if (!productivityStats.dailyStats.containsKey(today)) {
       productivityStats.dailyStats[today] = DailyStats(
         date: today,
@@ -141,27 +154,38 @@ class TaskService {
         completedTotal += 1;
         task.xpGranted = true;
         task.completedAt = DateTime.now();
-        
+
         // Отслеживание аналитики
         productivityStats.dailyStats[today]?.tasksCompleted += 1;
-        
+
         final hour = DateTime.now().hour;
-        productivityStats.completionByHour[hour] = 
+        productivityStats.completionByHour[hour] =
             (productivityStats.completionByHour[hour] ?? 0) + 1;
-        
-        productivityStats.completionByCategory[task.category] = 
+
+        productivityStats.completionByCategory[task.category] =
             (productivityStats.completionByCategory[task.category] ?? 0) + 1;
-        
+
         // Отслеживание пропущенных дедлайнов
-        if (task.teamDeadline != null && DateTime.now().isAfter(task.teamDeadline!)) {
+        if (task.teamDeadline != null &&
+            DateTime.now().isAfter(task.teamDeadline!)) {
           productivityStats.missedDeadlines.add(index);
         }
-        
-        final List<DateTime> completionTimes = productivityStats.dailyStats[today]?.completionTimes ?? <DateTime>[];
-        productivityStats.dailyStats[today]!.completionTimes = [...completionTimes, DateTime.now()];
-        
+
+        final List<DateTime> completionTimes =
+            productivityStats.dailyStats[today]?.completionTimes ??
+            <DateTime>[];
+        productivityStats.dailyStats[today]!.completionTimes = [
+          ...completionTimes,
+          DateTime.now(),
+        ];
+
         if (task.id != null) {
-          _recordChangeById(task.id!, 'Статус', task.status.displayName, TaskStatus.done.displayName);
+          _recordChangeById(
+            task.id!,
+            'Статус',
+            task.status.displayName,
+            TaskStatus.done.displayName,
+          );
         }
         _updateAchievements();
       }
@@ -171,13 +195,18 @@ class TaskService {
         completedTotal = (completedTotal - 1).clamp(0, completedTotal);
         task.xpGranted = false;
         task.completedAt = null;
-        
+
         // Обновляем статистику
-        productivityStats.dailyStats[today]?.tasksCompleted = 
+        productivityStats.dailyStats[today]?.tasksCompleted =
             (productivityStats.dailyStats[today]?.tasksCompleted ?? 0) - 1;
-        
+
         if (task.id != null) {
-          _recordChangeById(task.id!, 'Статус', TaskStatus.done.displayName, TaskStatus.todo.displayName);
+          _recordChangeById(
+            task.id!,
+            'Статус',
+            TaskStatus.done.displayName,
+            TaskStatus.todo.displayName,
+          );
         }
         _updateAchievements();
       }
@@ -186,12 +215,9 @@ class TaskService {
 
   void addComment(int index, String comment) async {
     if (comment.trim().isEmpty) return;
-    final newComment = Comment(
-      text: comment.trim(),
-      author: currentUserName,
-    );
+    final newComment = Comment(text: comment.trim(), author: currentUserName);
     tasks[index].comments.add(newComment);
-    
+
     // Update on server
     await updateTaskOnServer(tasks[index]);
   }
@@ -219,30 +245,57 @@ class TaskService {
     String title,
     String category,
     String? subcategory,
-    DateTime? deadline,
-    {DateTime? teamDeadline, String? assignedTo, String? assignedRole}
-  ) async {
+    DateTime? deadline, {
+    DateTime? teamDeadline,
+    String? assignedTo,
+    String? assignedRole,
+  }) async {
     final task = tasks[index];
     if (task.id != null) {
       _recordChangeById(task.id!, 'Название', task.title, title);
       _recordChangeById(task.id!, 'Категория', task.category, category);
       if (task.subcategory != subcategory) {
-        _recordChangeById(task.id!, 'Подкатегория', task.subcategory ?? '', subcategory ?? '');
+        _recordChangeById(
+          task.id!,
+          'Подкатегория',
+          task.subcategory ?? '',
+          subcategory ?? '',
+        );
       }
       if (task.deadline != deadline) {
-        _recordChangeById(task.id!, 'Дедлайн', task.deadline?.toString() ?? '', deadline?.toString() ?? '');
+        _recordChangeById(
+          task.id!,
+          'Дедлайн',
+          task.deadline?.toString() ?? '',
+          deadline?.toString() ?? '',
+        );
       }
       if (task.teamDeadline != teamDeadline) {
-        _recordChangeById(task.id!, 'Командный дедлайн', task.teamDeadline?.toString() ?? '', teamDeadline?.toString() ?? '');
+        _recordChangeById(
+          task.id!,
+          'Командный дедлайн',
+          task.teamDeadline?.toString() ?? '',
+          teamDeadline?.toString() ?? '',
+        );
       }
       if (task.assignedTo != assignedTo) {
-        _recordChangeById(task.id!, 'Назначено', task.assignedTo ?? '', assignedTo ?? '');
+        _recordChangeById(
+          task.id!,
+          'Назначено',
+          task.assignedTo ?? '',
+          assignedTo ?? '',
+        );
       }
       if (task.assignedRole != assignedRole) {
-        _recordChangeById(task.id!, 'Роль исполнителя', task.assignedRole ?? '', assignedRole ?? '');
+        _recordChangeById(
+          task.id!,
+          'Роль исполнителя',
+          task.assignedRole ?? '',
+          assignedRole ?? '',
+        );
       }
     }
-    
+
     task.title = title;
     task.category = category;
     task.subcategory = subcategory;
@@ -250,7 +303,7 @@ class TaskService {
     task.teamDeadline = teamDeadline;
     task.assignedTo = assignedTo;
     task.assignedRole = assignedRole;
-    
+
     // Update on server
     await updateTaskOnServer(task);
   }
@@ -263,6 +316,23 @@ class TaskService {
 
   void clearAllTasks() {
     tasks.clear();
+    achievements.clear();
+    experience = 0;
+    completedTotal = 0;
+    _initializeProductivityStats();
+  }
+
+  /// Очистить все данные при выходе из аккаунта
+  void clearAllUserData() {
+    tasks.clear();
+    teamMembers.clear();
+    achievements.clear();
+    experience = 0;
+    completedTotal = 0;
+    currentUserId = null;
+    currentUserName = null;
+    changeHistory.clear();
+    _initializeProductivityStats();
   }
 
   /// Сортировка по приоритету (высокий -> низкий)
@@ -342,9 +412,15 @@ class TaskService {
     if (taskIndex < 0 || taskIndex >= tasks.length) return;
     final member = teamMembers.firstWhere(
       (m) => m.id == memberId,
-      orElse: () => TeamMember(id: memberId, name: memberId, role: Role.developer),
+      orElse: () =>
+          TeamMember(id: memberId, name: memberId, role: Role.developer),
     );
-    _recordChange(taskIndex, 'Исполнитель', tasks[taskIndex].assignedTo ?? 'Не назначено', member.name);
+    _recordChange(
+      taskIndex,
+      'Исполнитель',
+      tasks[taskIndex].assignedTo ?? 'Не назначено',
+      member.name,
+    );
     tasks[taskIndex].assignedTo = member.name;
   }
 
@@ -353,14 +429,24 @@ class TaskService {
     final oldStatus = tasks[taskIndex].status;
     tasks[taskIndex].status = newStatus;
     tasks[taskIndex].isDone = newStatus == TaskStatus.done;
-    _recordChange(taskIndex, 'Статус', oldStatus.displayName, newStatus.displayName);
+    _recordChange(
+      taskIndex,
+      'Статус',
+      oldStatus.displayName,
+      newStatus.displayName,
+    );
   }
 
   void assignTaskToRole(int taskIndex, String roleName) {
     if (taskIndex < 0 || taskIndex >= tasks.length) return;
     final oldRole = tasks[taskIndex].assignedRole;
     tasks[taskIndex].assignedRole = roleName;
-    _recordChange(taskIndex, 'Роль исполнителя', oldRole ?? 'Не назначена', roleName);
+    _recordChange(
+      taskIndex,
+      'Роль исполнителя',
+      oldRole ?? 'Не назначена',
+      roleName,
+    );
   }
 
   List<Task> getTasksByRole(String roleName) {
@@ -389,7 +475,8 @@ class TaskService {
     final futureDate = now.add(Duration(days: daysAhead));
     return tasks.where((task) {
       if (task.teamDeadline == null || task.isDone) return false;
-      return task.teamDeadline!.isAfter(now) && task.teamDeadline!.isBefore(futureDate);
+      return task.teamDeadline!.isAfter(now) &&
+          task.teamDeadline!.isBefore(futureDate);
     }).toList();
   }
 
@@ -411,7 +498,12 @@ class TaskService {
     return changeHistory[key] ?? [];
   }
 
-  void _recordChange(int taskIndex, String field, String oldValue, String newValue) {
+  void _recordChange(
+    int taskIndex,
+    String field,
+    String oldValue,
+    String newValue,
+  ) {
     final key = 'task_$taskIndex';
     if (!changeHistory.containsKey(key)) {
       changeHistory[key] = [];
@@ -428,12 +520,17 @@ class TaskService {
     changeHistory[key]?.add(change);
   }
 
-  void _recordChangeById(String taskId, String field, String oldValue, String newValue) {
+  void _recordChangeById(
+    String taskId,
+    String field,
+    String oldValue,
+    String newValue,
+  ) {
     final key = 'task_$taskId';
     if (!changeHistory.containsKey(key)) {
       changeHistory[key] = [];
     }
-    
+
     final change = TaskChange(
       field: field,
       oldValue: oldValue,
@@ -441,7 +538,7 @@ class TaskService {
       changedAt: DateTime.now(),
       changedBy: currentUserName,
     );
-    
+
     changeHistory[key]?.add(change);
   }
 
@@ -451,7 +548,8 @@ class TaskService {
     return {
       'totalTasksCreated': productivityStats.totalTasksCreated,
       'totalTasksCompleted': productivityStats.totalTasksCompleted,
-      'averageCompletionRate': productivityStats.averageCompletionRate.toStringAsFixed(1),
+      'averageCompletionRate': productivityStats.averageCompletionRate
+          .toStringAsFixed(1),
       'mostProductiveDay': productivityStats.mostProductiveDay,
       'mostProductiveHour': productivityStats.mostProductiveHour,
       'missedDeadlines': productivityStats.missedDeadlines.length,
@@ -476,7 +574,9 @@ class TaskService {
   }
 
   Map<DateTime, int> getCompletedTasksByDay() {
-    return productivityStats.dailyStats.map((date, stats) => MapEntry(date, stats.tasksCompleted));
+    return productivityStats.dailyStats.map(
+      (date, stats) => MapEntry(date, stats.tasksCompleted),
+    );
   }
 
   Map<String, int> getProcrastinationReasons() {
@@ -562,8 +662,10 @@ class TaskService {
   void startTimer(int index) {
     if (index < 0 || index >= tasks.length) return;
     final task = tasks[index];
-    if (task.estimatedDuration == null || task.estimatedDuration!.inSeconds <= 0) return;
-    
+    if (task.estimatedDuration == null ||
+        task.estimatedDuration!.inSeconds <= 0)
+      return;
+
     task.isTimerActive = true;
     task.timerStartedAt = DateTime.now();
   }
@@ -580,7 +682,7 @@ class TaskService {
   Duration? getRemainingTime(int index) {
     if (index < 0 || index >= tasks.length) return null;
     final task = tasks[index];
-    
+
     if (task.estimatedDuration == null || task.timerStartedAt == null) {
       return task.estimatedDuration;
     }
@@ -600,8 +702,9 @@ class TaskService {
   double getTimerProgress(int index) {
     if (index < 0 || index >= tasks.length) return 0;
     final task = tasks[index];
-    
-    if (task.estimatedDuration == null || task.estimatedDuration!.inSeconds <= 0) {
+
+    if (task.estimatedDuration == null ||
+        task.estimatedDuration!.inSeconds <= 0) {
       return 0;
     }
 
@@ -628,7 +731,7 @@ class TaskService {
   String getFormattedDuration(int index) {
     if (index < 0 || index >= tasks.length) return 'Не установлено';
     final task = tasks[index];
-    
+
     if (task.estimatedDuration == null) {
       return 'Не установлено';
     }
@@ -647,7 +750,7 @@ class TaskService {
   bool isTimeExpired(int index) {
     if (index < 0 || index >= tasks.length) return false;
     final task = tasks[index];
-    
+
     if (task.estimatedDuration == null || task.timerStartedAt == null) {
       return false;
     }
@@ -674,13 +777,15 @@ class TaskService {
     try {
       final headers = await _authHeaders();
       print('🔵 Loading tasks from: $baseUrl/tasks');
-      final response = await http.get(Uri.parse('$baseUrl/tasks'), headers: headers).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout connecting to backend');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .get(Uri.parse('$baseUrl/tasks'), headers: headers)
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout connecting to backend');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('✅ Tasks loaded successfully');
@@ -703,23 +808,26 @@ class TaskService {
       final json = task.toJson();
       print('📤 Request body: ${jsonEncode(json)}');
       final headers = await _authHeaders();
-      final response = await http.post(
-        Uri.parse('$baseUrl/tasks'),
-        headers: headers,
-        body: jsonEncode(json),
-      ).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout saving task');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/tasks'),
+            headers: headers,
+            body: jsonEncode(json),
+          )
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout saving task');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode == 201) {
         print('✅ Task saved successfully');
         final createdJson = jsonDecode(response.body);
         // MongoDB returns _id, some servers might return id
-        task.id = createdJson['_id']?.toString() ?? createdJson['id']?.toString();
+        task.id =
+            createdJson['_id']?.toString() ?? createdJson['id']?.toString();
         print('✅ Task ID: ${task.id}');
       } else {
         print('❌ Failed to save task: ${response.statusCode}');
@@ -741,17 +849,19 @@ class TaskService {
       print('🔵 Updating task: $baseUrl/tasks/${task.id}');
       final json = task.toJson();
       final headers = await _authHeaders();
-      final response = await http.put(
-        Uri.parse('$baseUrl/tasks/${task.id}'),
-        headers: headers,
-        body: jsonEncode(json),
-      ).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout updating task');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/tasks/${task.id}'),
+            headers: headers,
+            body: jsonEncode(json),
+          )
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout updating task');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode != 200) {
         print('❌ Failed to update task: ${response.statusCode}');
@@ -768,16 +878,15 @@ class TaskService {
     try {
       print('🔵 Deleting task: $baseUrl/tasks/$taskId');
       final headers = await _authHeaders();
-      final response = await http.delete(
-        Uri.parse('$baseUrl/tasks/$taskId'),
-        headers: headers,
-      ).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout deleting task');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .delete(Uri.parse('$baseUrl/tasks/$taskId'), headers: headers)
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout deleting task');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode != 200) {
         print('❌ Failed to delete task: ${response.statusCode}');
@@ -795,19 +904,23 @@ class TaskService {
   Future<void> loadTeamMembers() async {
     try {
       print('🔵 Loading team members from: $baseUrl/team-members');
-      final response = await http.get(Uri.parse('$baseUrl/team-members')).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout connecting to backend for team members');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .get(Uri.parse('$baseUrl/team-members'))
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout connecting to backend for team members');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Team members response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('✅ Team members loaded successfully');
         final List<dynamic> jsonList = jsonDecode(response.body);
         print('📊 Loaded ${jsonList.length} team members');
-        teamMembers = jsonList.map((json) => TeamMember.fromJson(json)).toList();
+        teamMembers = jsonList
+            .map((json) => TeamMember.fromJson(json))
+            .toList();
       } else {
         print('❌ Failed to load team members: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -822,17 +935,19 @@ class TaskService {
       print('🔵 Saving team member to: $baseUrl/team-members');
       final json = member.toJson();
       print('📤 Request body: ${jsonEncode(json)}');
-      final response = await http.post(
-        Uri.parse('$baseUrl/team-members'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(json),
-      ).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout saving team member');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/team-members'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(json),
+          )
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout saving team member');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode == 201) {
         print('✅ Team member saved successfully');
@@ -849,17 +964,19 @@ class TaskService {
     try {
       print('🔵 Updating team member: $baseUrl/team-members/${member.id}');
       final json = member.toJson();
-      final response = await http.put(
-        Uri.parse('$baseUrl/team-members/${member.id}'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(json),
-      ).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout updating team member');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/team-members/${member.id}'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(json),
+          )
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout updating team member');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode != 200) {
         print('❌ Failed to update team member: ${response.statusCode}');
@@ -875,13 +992,15 @@ class TaskService {
   Future<void> deleteTeamMemberFromServer(String memberId) async {
     try {
       print('🔵 Deleting team member: $baseUrl/team-members/$memberId');
-      final response = await http.delete(Uri.parse('$baseUrl/team-members/$memberId')).timeout(
-        Duration(seconds: 5),
-        onTimeout: () {
-          print('❌ Timeout deleting team member');
-          throw Exception('Connection timeout');
-        },
-      );
+      final response = await http
+          .delete(Uri.parse('$baseUrl/team-members/$memberId'))
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              print('❌ Timeout deleting team member');
+              throw Exception('Connection timeout');
+            },
+          );
       print('📡 Response status: ${response.statusCode}');
       if (response.statusCode != 200) {
         print('❌ Failed to delete team member: ${response.statusCode}');
@@ -894,4 +1013,3 @@ class TaskService {
     }
   }
 }
-

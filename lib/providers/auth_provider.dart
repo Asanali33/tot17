@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/task_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
@@ -7,6 +8,12 @@ class AuthProvider extends ChangeNotifier {
   String? _currentUsername;
   String? _currentUserId;
   String? _errorMessage;
+  TaskService? _taskService;
+
+  // Установить ссылку на TaskService для очистки при выходе
+  void setTaskService(TaskService taskService) {
+    _taskService = taskService;
+  }
 
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
@@ -116,6 +123,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    // Очищаем все данные задач при выходе из аккаунта
+    _taskService?.clearAllUserData();
+
     await AuthService.logout();
     _isLoggedIn = false;
     _currentUsername = null;

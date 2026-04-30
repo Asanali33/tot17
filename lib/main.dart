@@ -7,22 +7,35 @@ import 'screens/main_screen.dart';
 import 'screens/login_screen.dart';
 import 'providers/locale_provider.dart';
 import 'providers/auth_provider.dart';
+import 'services/task_service.dart';
 import 'l10n/app_localizations.dart';
 
 void main() {
+  // Создаём один экземпляр TaskService для всего приложения
+  final taskService = TaskService();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+          create: (_) {
+            final authProvider = AuthProvider();
+            // Передаём TaskService в AuthProvider для очистки при выходе
+            authProvider.setTaskService(taskService);
+            return authProvider;
+          },
+        ),
       ],
-      child: const TaskFlowApp(),
+      child: TaskFlowApp(taskService: taskService),
     ),
   );
 }
 
 class TaskFlowApp extends StatefulWidget {
-  const TaskFlowApp({super.key});
+  final TaskService taskService;
+
+  const TaskFlowApp({super.key, required this.taskService});
 
   @override
   State<TaskFlowApp> createState() => _TaskFlowAppState();
@@ -42,7 +55,10 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
   /// Проверка статуса аутентификации при запуске
   Future<void> _checkAuthStatus() async {
     if (mounted) {
-      await Provider.of<AuthProvider>(context, listen: false).checkLoginStatus();
+      await Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).checkLoginStatus();
     }
   }
 
@@ -183,16 +199,14 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en'),
-            Locale('ru'),
-          ],
+          supportedLocales: const [Locale('en'), Locale('ru')],
           home: Consumer<AuthProvider>(
             builder: (context, authProvider, _) {
               if (authProvider.isLoggedIn) {
                 return MainScreen(
                   onToggleTheme: _toggleTheme,
                   isDarkMode: _isDarkMode,
+                  taskService: widget.taskService,
                 );
               } else {
                 return LoginScreen();
@@ -203,6 +217,7 @@ class _TaskFlowAppState extends State<TaskFlowApp> {
             '/home': (context) => MainScreen(
               onToggleTheme: _toggleTheme,
               isDarkMode: _isDarkMode,
+              taskService: widget.taskService,
             ),
             '/login': (context) => LoginScreen(),
           },
